@@ -27,7 +27,7 @@ const ListItem = styled.input`
   border-radius: 5px;
   color: rgb(255, 255, 255);
   border: none;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 300;
   background-color: transparent;
   resize: none;

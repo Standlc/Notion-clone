@@ -98,7 +98,7 @@ const SideBar: React.FC<Props> = ({
   };
   const handleAddPage = () => {
     const notesFolderCopy = notesFolder.slice();
-    notesFolderCopy.push({
+    const newPage = {
       title: "",
       id: v4(),
       notes: [
@@ -108,11 +108,16 @@ const SideBar: React.FC<Props> = ({
           id: v4(),
         },
       ],
-    });
+    };
+    notesFolderCopy.push(newPage);
+    setCurrentNotes(newPage);
     setNotesFolder(notesFolderCopy);
   };
-  const DeletePage = (Id: string) => {
-    setCurrentNotes(notesFolder[0])
+  const DeletePage = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, Id: string) => {
+    e.stopPropagation()
+    if(notesFolder[0]){
+      setCurrentNotes(notesFolder[0]);
+    }
     setNotesFolder(notesFolder.filter((notesFile) => notesFile.id !== Id));
   };
 
@@ -133,7 +138,7 @@ const SideBar: React.FC<Props> = ({
             : noteFile.notes[0]?.content
             ? noteFile.notes[0]?.content
             : "Untitled"}
-          <Options onClick={() => DeletePage(noteFile.id)}>
+          <Options onClick={(e) => DeletePage(e, noteFile.id)}>
             <MoreHoriz />
           </Options>
         </Note>

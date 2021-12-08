@@ -1,14 +1,10 @@
-import {
-  FormatListBulleted,
-  InsertPhoto,
-  RadioButtonChecked,
-  ShortText,
-  TitleOutlined,
-} from "@material-ui/icons";
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
 import styled from "styled-components";
 import { NoteElement, NotesFile, SelectionProps } from "../App";
-import Element from "./Element";
+import Element from "./TextInput.tsx/Element";
+import { v4 } from "uuid";
+import Controls from "./Controls";
+import { SelectionRangeContext } from "../selectionRange";
 
 type Props = {
   currentNotes: NotesFile;
@@ -20,43 +16,15 @@ const Container = styled.div`
   align-items: start;
   justify-content: center;
   overflow-y: auto;
+  padding-bottom: 50px;
 `;
 const Wrapper = styled.div`
   position: relative;
-  width: 75%;
-  min-width: 450px;
+  min-width: 400px;
   max-width: 800px;
   color: white;
-  border-radius: 10px;
-  padding: 50px;
-  &:focus {
-    outline: none;
-  }
-`;
-const Menu = styled.div<SelectionProps>`
-  position: absolute;
-  z-index: 99;
-  background-color: rgba(2, 5, 8, 1);
-  color: white;
-  border-radius: 5px;
-  padding: 10px;
-  margin-left: 30px;
-  top: ${(props) =>
-    props.selectionBoundings.top ? props.selectionBoundings.top + 40 : 0}px;
-  left: 80px;
-  box-shadow: 0px 7px 12px 0px rgba(0, 0, 0, 0.6);
-`;
-const MenuItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  width: 150px;
-  border-radius: 5px;
-  &:hover {
-    background-color: rgb(14, 21, 27);
-  }
-  transition: background-color 100ms;
-  cursor: pointer;
+  width: 100%;
+  padding: 50px 50px 0px 50px;
 `;
 const Title = styled.input`
   padding: 0 20px;
@@ -78,12 +46,10 @@ const Divider = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
   margin: 30px 0px;
 `;
-
 const EditorComponent: React.FC<Props> = ({
   currentNotes,
   setCurrentNotes,
 }) => {
-  console.log(currentNotes)
   const [showMenu, setShowMenu] = useState(false);
   const [selectionBoundings, setSelectionBoundings] = useState<
     SelectionProps["selectionBoundings"]
@@ -91,120 +57,97 @@ const EditorComponent: React.FC<Props> = ({
     top: 0,
     left: 0,
   });
-
   const [focusedNote, setFocusedNote] = useState<NoteElement | undefined>(
     undefined
   );
+  const [menuOptionIndex, setMenuOptionIndex] = useState<number>(0);
+  const [enter, setEnter] = useState<boolean>(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const { selectionRange, setSelectionRange } = useContext(
+    SelectionRangeContext
+  );
 
-  const handleNoteType = (type: string) => {
-    if (focusedNote) {
-      const currentNotesCopy = { ...currentNotes };
-      const noteCopy = currentNotes.notes.find(
-        (note) => note.id === focusedNote.id
-      );
-      focusedNote.content = focusedNote.content.slice(0, -1);
-      if (type === "list") {
-        if (noteCopy) {
-          noteCopy.listItems = [];
-          noteCopy.listType = "bullets";
-        }
-      }
-      if (type === "image") {
-        if (noteCopy) {
-          noteCopy.img = "";
-        }
-      }
-      if (focusedNote) {
-        focusedNote.type = type;
-        setCurrentNotes(currentNotesCopy);
-      }
-    }
-    setShowMenu(false);
-  };
-
-  const handleListType = (type: string) => {
-    if (focusedNote) {
-      focusedNote.listType = type;
-      focusedNote.content = focusedNote.content.slice(0, -1);
-      focusedNote.listItems?.map((listItem) => (listItem.checked = false));
-      const currentNotesCopy = { ...currentNotes };
-      setCurrentNotes(currentNotesCopy);
-    }
-    setShowMenu(false);
-  };
   const handleNoteTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const currentNotesCopy = { ...currentNotes };
     currentNotesCopy.title = e.target.value;
     setCurrentNotes(currentNotesCopy);
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "ArrowDown") {
+      document.getElementById(currentNotes.notes[0].id)?.focus();
+    }
+  };
+
+  const handleEditorClick = (e: any) => {
+    setShowMenu(false);
+    const lastNote = currentNotes.notes[currentNotes.notes.length - 1];
+    if (!wrapperRef.current?.contains(e.target)) {
+      const newLineId = v4();
+      if (lastNote.type !== "newNote" || lastNote.content) {
+        currentNotes.notes.push({
+          type: "newNote",
+          content: "",
+          id: newLineId,
+        });
+        const currentNotesCopy = { ...currentNotes };
+        setCurrentNotes(currentNotesCopy);
+      }
+      setSelectionRange({
+        elementId: newLineId,
+        start: 0,
+        end: 0,
+      });
+      if (lastNote.type === "newNote" && !lastNote.content) {
+        document.getElementById(lastNote.id)?.focus();
+      }
+    }
+  };
+
   return (
-    <Container onClick={() => setShowMenu(false)}>
-      <Wrapper>
-        <Title
-          spellCheck="false"
-          placeholder="Untitled"
-          onChange={handleNoteTitle}
-          value={currentNotes.title}
-        />
-        <Divider />
-        {currentNotes.notes?.map((note) => (
-          <Element
-            key={note.id}
-            note={note}
+    <Container onClick={handleEditorClick}>
+      {currentNotes && (
+        <>
+          <Wrapper ref={wrapperRef}>
+            <Title
+              onKeyDown={handleKeyDown}
+              spellCheck="false"
+              placeholder="Untitled"
+              onChange={handleNoteTitle}
+              value={currentNotes.title}
+            />
+            <Divider />
+            {currentNotes.notes?.map((note) => (
+              <Element
+                key={note.id}
+                note={note}
+                currentNotes={currentNotes}
+                setCurrentNotes={setCurrentNotes}
+                setFocusedNote={setFocusedNote}
+                showMenu={showMenu}
+                setShowMenu={setShowMenu}
+                setSelectionBoundings={setSelectionBoundings}
+                menuOptionIndex={menuOptionIndex}
+                setMenuOptionIndex={setMenuOptionIndex}
+                enter={enter}
+                setEnter={setEnter}
+              />
+            ))}
+          </Wrapper>
+          <Controls
+            showMenu={showMenu}
+            setShowMenu={setShowMenu}
             currentNotes={currentNotes}
             setCurrentNotes={setCurrentNotes}
-            setFocusedNote={setFocusedNote}
-            setShowMenu={setShowMenu}
-            setSelectionBoundings={setSelectionBoundings}
+            focusedNote={focusedNote}
+            selectionBoundings={selectionBoundings}
+            menuOptionIndex={menuOptionIndex}
+            setMenuOptionIndex={setMenuOptionIndex}
+            enter={enter}
+            setEnter={setEnter}
           />
-        ))}
-        {showMenu && (
-          <Menu selectionBoundings={selectionBoundings}>
-            {focusedNote?.type === "list" ? (
-              <>
-                <MenuItem onClick={() => handleListType("bullets")}>
-                  <FormatListBulleted style={{ marginRight: "10px" }} />
-                  Bullets
-                </MenuItem>
-                <MenuItem onClick={() => handleListType("checkbox")}>
-                  <RadioButtonChecked style={{ marginRight: "10px" }} />
-                  Checkbox
-                </MenuItem>
-              </>
-            ) : (
-              <>
-                <MenuItem onClick={() => handleNoteType("title")}>
-                  <TitleOutlined style={{ marginRight: "10px" }} />
-                  Title
-                </MenuItem>
-                <MenuItem onClick={() => handleNoteType("paragraph")}>
-                  <ShortText style={{ marginRight: "10px" }} />
-                  Paragraph
-                </MenuItem>
-                <MenuItem onClick={() => handleNoteType("list")}>
-                  <FormatListBulleted style={{ marginRight: "10px" }} />
-                  List
-                </MenuItem>
-                <MenuItem onClick={() => handleNoteType("divider")}>
-                  <div
-                    style={{
-                      width: "20px",
-                      height: "2px",
-                      backgroundColor: "white",
-                      marginRight: "14px",
-                    }}
-                  ></div>
-                  Divider
-                </MenuItem>
-                <MenuItem onClick={() => handleNoteType("image")}>
-                  <InsertPhoto style={{ marginRight: "10px" }} />
-                  Image
-                </MenuItem>
-              </>
-            )}
-          </Menu>
-        )}
-      </Wrapper>
+        </>
+      )}
     </Container>
   );
 };
