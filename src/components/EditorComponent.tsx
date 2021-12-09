@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { NoteElement, NotesFile, SelectionProps } from "../App";
 import Element from "./TextInput.tsx/Element";
 import { v4 } from "uuid";
-import Controls from "./Controls";
+import Controls from "./controls/Controls";
 import { SelectionRangeContext } from "../selectionRange";
 
 type Props = {
@@ -81,6 +81,7 @@ const EditorComponent: React.FC<Props> = ({
 
   const handleEditorClick = (e: any) => {
     setShowMenu(false);
+    setMenuOptionIndex(0);
     const lastNote = currentNotes.notes[currentNotes.notes.length - 1];
     if (!wrapperRef.current?.contains(e.target)) {
       const newLineId = v4();
@@ -99,7 +100,11 @@ const EditorComponent: React.FC<Props> = ({
         end: 0,
       });
       if (lastNote.type === "newNote" && !lastNote.content) {
-        document.getElementById(lastNote.id)?.focus();
+        setSelectionRange({
+          elementId: lastNote.id,
+          start: 0,
+          end: 0,
+        });
       }
     }
   };

@@ -3,7 +3,7 @@ import { v4 } from "uuid";
 import { Range } from "../../selectionRange";
 
 export const handleNewLine = (
-  e: React.KeyboardEvent<HTMLInputElement>,
+  e: React.KeyboardEvent<HTMLDivElement>,
   currentNotes: NotesFile,
   setCurrentNotes: React.Dispatch<React.SetStateAction<NotesFile>>,
   note: NoteElement,
@@ -17,13 +17,13 @@ export const handleNewLine = (
   const newNoteId = v4();
   const notesCopy = { ...currentNotes };
 
+  //LIST
   if (note.type === "list") {
     note.listItems?.push({
       content: "",
       id: v4(),
     });
     setCurrentNotes(notesCopy);
-    console.log('list')
     return;
   }
   //FROM END OF LINE
@@ -34,7 +34,7 @@ export const handleNewLine = (
       id: newNoteId,
     });
   }
-  //FROM MIDDLE OF LINE
+  //FROM MIDDLE OR BEGINNING OF LINE
   if (caretPos < note.content.length) {
     notesCopy.notes.splice(lineIndex + 1, 0, {
       type: "newNote",

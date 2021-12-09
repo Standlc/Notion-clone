@@ -1,8 +1,10 @@
 import { useContext, useEffect } from "react";
 import styled from "styled-components";
-import { NoteElement, NotesFile, SelectionProps } from "../App";
-import { optionsData } from "../data";
-import { SelectionRangeContext } from "../selectionRange";
+import { NoteElement, NotesFile, SelectionProps } from "../../App";
+import { optionsData } from "../../data";
+import { SelectionRangeContext } from "../../selectionRange";
+import { handleListType } from "./listType";
+import { handleNoteType } from "./noteType";
 
 type Props = {
   showMenu: Boolean;
@@ -59,65 +61,34 @@ const Controls: React.FC<Props> = ({
   const { selectionRange, setSelectionRange } = useContext(
     SelectionRangeContext
   );
-  const handleNoteType = (type: string) => {
-    if (focusedNote) {
-      const currentNotesCopy = { ...currentNotes };
-      const noteCopy = currentNotes.notes.find(
-        (note) => note.id === focusedNote.id
-      );
-      focusedNote.content = focusedNote.content.slice(0, -1);
-      const currentLine = document.getElementById(focusedNote.id);
-      if (currentLine)
-        currentLine.childNodes[0].textContent = focusedNote.content;
-      setSelectionRange({
-        elementId: focusedNote.id,
-        start: focusedNote.content.length,
-        end: focusedNote.content.length,
-      });
-      focusedNote.listItems?.map((listItem) => (listItem.checked = false));
-      if (type === "list") {
-        if (noteCopy) {
-          noteCopy.listItems = [];
-          noteCopy.listType = "bullets";
-        }
-      }
-      if (type === "image") {
-        if (noteCopy) {
-          noteCopy.img = "";
-        }
-      }
-      if (focusedNote) {
-        focusedNote.type = type;
-        setCurrentNotes(currentNotesCopy);
-      }
-    }
-    setMenuOptionIndex(0);
-    setShowMenu(false);
+  const noteType = (type: string) => {
+    handleNoteType(
+      type,
+      focusedNote,
+      currentNotes,
+      setCurrentNotes,
+      setMenuOptionIndex,
+      setShowMenu,
+      setSelectionRange
+    );
   };
-  const handleListType = (type: string) => {
-    if (focusedNote) {
-      focusedNote.listType = type;
-      focusedNote.content = focusedNote.content.slice(0, -1);
-      const currentLine = document.getElementById(focusedNote.id);
-      if (currentLine)
-        currentLine.childNodes[0].textContent = focusedNote.content;
-      setSelectionRange({
-        elementId: focusedNote.id,
-        start: focusedNote.content.length,
-        end: focusedNote.content.length,
-      });
-      focusedNote.listItems?.map((listItem) => (listItem.checked = false));
-      const currentNotesCopy = { ...currentNotes };
-      setCurrentNotes(currentNotesCopy);
-    }
-    setShowMenu(false);
+  const listType = (type: string) => {
+    handleListType(
+      type,
+      focusedNote,
+      currentNotes,
+      setCurrentNotes,
+      setMenuOptionIndex,
+      setShowMenu,
+      setSelectionRange
+    );
   };
   //ENTER
   useEffect(() => {
     if (enter) {
       focusedNote?.type !== "list"
-        ? handleNoteType(optionsData.types[menuOptionIndex].type)
-        : handleListType(optionsData.listTypes[menuOptionIndex].type);
+        ? noteType(optionsData.types[menuOptionIndex].type)
+        : listType(optionsData.listTypes[menuOptionIndex].type);
       setMenuOptionIndex(0);
       setEnter(false);
     }
@@ -131,7 +102,7 @@ const Controls: React.FC<Props> = ({
               <MenuItem
                 key={index}
                 selected={menuOptionIndex === index}
-                onClick={() => handleListType(type.type)}
+                onClick={() => listType(type.type)}
               >
                 {type.icon}
                 {type.name}
@@ -141,7 +112,7 @@ const Controls: React.FC<Props> = ({
               <MenuItem
                 key={index}
                 selected={menuOptionIndex === index}
-                onClick={() => handleNoteType(type.type)}
+                onClick={() => noteType(type.type)}
               >
                 {type.icon}
                 {type.name}

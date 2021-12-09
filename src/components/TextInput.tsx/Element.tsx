@@ -16,6 +16,18 @@ import { useContext } from "react";
 import { SelectionRangeContext } from "../../selectionRange";
 import { hanldeMenuNavigation } from "./menuNavigation";
 import { handleInput } from "./handleInput";
+import {
+  Divider,
+  DividerInput,
+  DividerWrapper,
+  Function,
+  Image,
+  ImageInput,
+  InputLine,
+  ListContainer,
+  Triangle,
+  Wrapper,
+} from "./elementsStyled";
 
 interface Props {
   note: NoteElement;
@@ -32,95 +44,6 @@ interface Props {
   enter: boolean;
   setEnter: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Function = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  visibility: hidden;
-  margin-right: 2px;
-  color: rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  &:hover {
-    background-color: rgb(5, 10, 15);
-  }
-  cursor: pointer;
-`;
-const Triangle = styled.div<{ showList: Boolean }>`
-  margin: 0 5px;
-  color: rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  transform: ${(props) => (props.showList ? "rotate(90deg)" : "rotate(0)")};
-  transition: transform 200ms;
-`;
-const InputLine = styled.div<{ padding: string; fontSize: string }>`
-  white-space: pre-wrap;
-  word-break: break-word;
-  padding: ${(props) => props.padding};
-  font-size: ${(props) => props.fontSize};
-  border-radius: 5px;
-  color: white;
-  font-weight: 300;
-  background-color: transparent;
-  transition: background-color 100ms;
-  flex: 1;
-  &:focus {
-    outline: none;
-  }
-  &:hover {
-    background-color: rgb(5, 10, 15);
-  }
-`;
-const ListContainer = styled.div`
-  padding: 10px 0px;
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  border-radius: 5px;
-  transition: background-color 100ms;
-  &:hover {
-    background-color: rgb(5, 10, 15);
-  }
-`;
-const Divider = styled.div`
-  height: 1px;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.2);
-  margin: 10px 0px;
-`;
-const Wrapper = styled.div`
-  width: 100%;
-  margin: 2px 0;
-  display: flex;
-  align-items: center;
-  &:hover ${Function} {
-    visibility: visible;
-  }
-`;
-const Image = styled.img`
-  width: 100%;
-  border-radius: 5px;
-  object-fit: contain;
-`;
-const ImageInput = styled.label`
-  padding: 7px;
-  width: 100%;
-  background-color: rgb(20, 30, 37);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  transition: background-color 100ms;
-  color: gray;
-  &:hover {
-    background-color: rgb(27, 40, 49);
-  }
-`;
 
 const Element: React.FC<Props> = ({
   note,
@@ -137,24 +60,27 @@ const Element: React.FC<Props> = ({
   const [lineIndex, setLineIndex] = useState(currentNotes.notes.indexOf(note));
   const noteId = note.id;
   const [prevNote, setPrevNote] = useState<HTMLElement | null>(null);
-  const [nextNote, setNextNote] = useState<HTMLElement | null>(null);
   const lineRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const [showList, setShowList] = useState(true);
   const { selectionRange, setSelectionRange } = useContext(
     SelectionRangeContext
   );
+  const [elementIsSelected, setElementIsSelected] = useState<boolean>(false);
 
   useEffect(() => {
     setLineIndex(currentNotes.notes.indexOf(note));
     setPrevNote(document.getElementById(currentNotes.notes[lineIndex - 1]?.id));
-    setNextNote(document.getElementById(currentNotes.notes[lineIndex + 1]?.id));
   }, [currentNotes, note, lineIndex]);
 
-  const range = new Range();
   useLayoutEffect(() => {
-    if (selectionRange.elementId !== note.id) return;
+    const range = new Range();
+    if (selectionRange.elementId !== note.id) {
+      setElementIsSelected(false);
+      return;
+    }
     const childNode = lineRef.current?.childNodes[0];
     if (childNode === undefined) return;
+    setElementIsSelected(true);
     range.setStart(childNode, selectionRange.start);
     range.setEnd(childNode, selectionRange.end);
     getSelection()?.removeAllRanges();
@@ -176,7 +102,7 @@ const Element: React.FC<Props> = ({
     setCurrentNotes(currentNotesCopy);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     //ENTER NEW NOTE
     if (e.key === "Enter" && !showMenu) {
       handleNewLine(
@@ -226,11 +152,11 @@ const Element: React.FC<Props> = ({
     }
     //GO UP
     if (e.key === "ArrowUp" && !showMenu) {
-      handleLineNavigation(e, prevNote, lineRef, setSelectionRange);
+      handleLineNavigation(e, "up", setSelectionRange, note, currentNotes);
     }
     //GO DOWN
     if (e.key === "ArrowDown" && !showMenu) {
-      handleLineNavigation(e, nextNote, lineRef, setSelectionRange);
+      handleLineNavigation(e, "down", setSelectionRange, note, currentNotes);
     }
   };
   //IMAGE
@@ -252,6 +178,14 @@ const Element: React.FC<Props> = ({
       setMenuOptionIndex
     );
   };
+  const handleClick = () => {
+    const caretPos = getSelection()?.getRangeAt(0).endOffset;
+    setSelectionRange({
+      elementId: note.id,
+      start: caretPos,
+      end: caretPos,
+    });
+  };
 
   return (
     <Wrapper>
@@ -266,18 +200,19 @@ const Element: React.FC<Props> = ({
         note.type === "title") && (
         <div style={{ position: "relative", width: "100%" }}>
           <InputLine
+            onClick={handleClick}
             ref={lineRef}
             id={note.id}
             onInput={handleTextInput}
             contentEditable="true"
             suppressContentEditableWarning={true}
             onKeyDown={handleKeyDown}
-            padding="0 10px"
+            padding="0 7px"
             fontSize={note.type === "title" ? "25px" : "16px"}
           >
             <Text value={note.content} />
           </InputLine>
-          {!note.content && <PlaceHolder note={note} />}
+          {elementIsSelected && !note.content && <PlaceHolder note={note} />}
         </div>
       )}
       {note.type === "list" && (
@@ -297,6 +232,7 @@ const Element: React.FC<Props> = ({
               <ArrowRight fontSize="medium" />
             </Triangle>
             <InputLine
+              onClick={handleClick}
               ref={lineRef}
               id={note.id}
               onInput={handleTextInput}
@@ -308,7 +244,7 @@ const Element: React.FC<Props> = ({
             >
               <Text value={note.content} />
             </InputLine>
-            {!note.content && <PlaceHolder note={note} />}
+            {elementIsSelected && !note.content && <PlaceHolder note={note} />}
           </div>
           {showList &&
             note.listItems?.map((item) => (
@@ -322,6 +258,25 @@ const Element: React.FC<Props> = ({
             ))}
         </ListContainer>
       )}
+      {note.type === "divider" && (
+        <DividerWrapper
+          onClick={handleClick}
+          elementIsSelected={elementIsSelected}
+        >
+          <Divider id={note.id} />
+          <DividerInput
+            ref={lineRef}
+            contentEditable="true"
+            suppressContentEditableWarning={true}
+            onKeyDown={(e) => {
+              handleKeyDown(e);
+              e.preventDefault();
+            }}
+          >
+            {" "}
+          </DividerInput>
+        </DividerWrapper>
+      )}
     </Wrapper>
   );
 };
@@ -334,89 +289,24 @@ const Text = React.memo(
   (prevProps, props) => !!props.value
 );
 
-{
-  /* {note.type === "divider" && <Divider id={note.id} key={note.id} />} */
-}
-{
-  /* {note.type === "title" && (
-          <Title
-            id={note.id}
-            autoFocus
-            onChange={handleText}
-            onKeyDown={handleKeyDown}
-            placeholder="Title"
-            value={note.content}
-          />
-        )} */
-}
-{
-  /* {note.type === "paragraph" && (
-          <Paragraph
-            id={note.id}
-            autoFocus
-            onChange={handleText}
-            onKeyDown={handleKeyDown}
-            placeholder="Paragraph"
-            value={note.content}
-          />
-        )} */
-}
-{
-  /* {note.type === "list" && (
-          <ListContainer>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Triangle
-                showList={showList}
-                onClick={() => setShowList(!showList)}
-              >
-                <ArrowRight fontSize="medium" />
-              </Triangle>
-              <List
-                id={note.id}
-                autoFocus
-                onChange={handleText}
-                onKeyDown={handleKeyDown}
-                placeholder="List title :"
-                value={note.content}
-              />
-            </div>
-            {showList &&
-              note.listItems?.map((item) => (
-                <ListComponent
-                  key={item.id}
-                  item={item}
-                  note={note}
-                  currentNotes={currentNotes}
-                  setCurrentNotes={setCurrentNotes}
-                />
-              ))}
-          </ListContainer>
-        )}
-        {note.type === "image" && (
-          <ImageInput htmlFor="fileInput">
-            {!file && (
-              <>
-                <InsertPhoto
-                  fontSize="large"
-                  style={{ marginRight: "10px", color: "white" }}
-                />
-                Add an image
-              </>
-            )}
-            <Paragraph
-              id="fileInput"
-              type="file"
-              accept=".png, .jpeg, .jpg"
-              style={{ display: "none" }}
-              onChange={handleImage}
-            />
-            {file && <Image alt="" src={URL.createObjectURL(file)} />}
-          </ImageInput>
-        )} */
-}
+// {note.type === "image" && (
+//   <ImageInput htmlFor="fileInput">
+//     {!file && (
+//       <>
+//         <InsertPhoto
+//           fontSize="large"
+//           style={{ marginRight: "10px", color: "white" }}
+//         />
+//         Add an image
+//       </>
+//     )}
+//     <Paragraph
+//       id="fileInput"
+//       type="file"
+//       accept=".png, .jpeg, .jpg"
+//       style={{ display: "none" }}
+//       onChange={handleImage}
+//     />
+//     {file && <Image alt="" src={URL.createObjectURL(file)} />}
+//   </ImageInput>
+// )}

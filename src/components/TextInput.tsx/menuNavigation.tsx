@@ -2,7 +2,7 @@ import { NoteElement } from "../../App";
 import { optionsData } from "../../data";
 
 export const hanldeMenuNavigation = (
-  e: React.KeyboardEvent<HTMLInputElement>,
+  e: React.KeyboardEvent<HTMLDivElement>,
   menuOptionIndex: number,
   setMenuOptionIndex: React.Dispatch<React.SetStateAction<number>>,
   note: NoteElement,

@@ -1,7 +1,7 @@
 import { NoteElement, NotesFile } from "../../App";
 
 export const handleDeleteLine = (
-  e: React.KeyboardEvent<HTMLInputElement>,
+  e: React.KeyboardEvent<HTMLDivElement>,
   prevNodeRef: HTMLElement | null,
   lineRef: React.RefObject<HTMLDivElement>,
   currentNotes: NotesFile,
@@ -58,7 +58,7 @@ export const handleDeleteLine = (
         end: prevNode.content.length,
       });
       if (!prevNodeRef) return;
-      prevNode.content += lineRef.current.innerHTML;
+      prevNode.content += note.content;
       prevNodeRef.innerHTML = prevNode.content;
       currentNotes.notes = currentNotes.notes.filter(
         (note) => note.id !== noteId

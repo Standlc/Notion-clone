@@ -6,7 +6,7 @@ const Container = styled.div`
   color: gray;
   position: absolute;
   top: 0;
-  left: 10px;
+  left: 7px;
   pointer-events: none;
 `;
 
