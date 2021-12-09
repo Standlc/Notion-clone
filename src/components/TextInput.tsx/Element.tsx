@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { NoteElement, NotesFile, SelectionProps } from "../../App";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import ListComponent from "../ListComponent";
+import ListComponent from "./listITem/ListComponent";
 import {
   ArrowRight,
   DragIndicator,
@@ -57,8 +57,6 @@ const Element: React.FC<Props> = ({
   setMenuOptionIndex,
   setEnter,
 }) => {
-  const [lineIndex, setLineIndex] = useState(currentNotes.notes.indexOf(note));
-  const noteId = note.id;
   const [prevNote, setPrevNote] = useState<HTMLElement | null>(null);
   const lineRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const [showList, setShowList] = useState(true);
@@ -68,9 +66,9 @@ const Element: React.FC<Props> = ({
   const [elementIsSelected, setElementIsSelected] = useState<boolean>(false);
 
   useEffect(() => {
-    setLineIndex(currentNotes.notes.indexOf(note));
+    const lineIndex = currentNotes.notes.indexOf(note);
     setPrevNote(document.getElementById(currentNotes.notes[lineIndex - 1]?.id));
-  }, [currentNotes, note, lineIndex]);
+  }, [currentNotes, note]);
 
   useLayoutEffect(() => {
     const range = new Range();
@@ -89,6 +87,7 @@ const Element: React.FC<Props> = ({
 
   //DELETE NOTE
   const handleRemoveNote = () => {
+    const noteId = note.id;
     if (currentNotes.notes.length === 1) {
       note.content = "";
       if (lineRef.current?.innerHTML)
@@ -251,7 +250,7 @@ const Element: React.FC<Props> = ({
               <ListComponent
                 key={item.id}
                 item={item}
-                note={note}
+                listParent={note}
                 currentNotes={currentNotes}
                 setCurrentNotes={setCurrentNotes}
               />

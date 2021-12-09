@@ -19,10 +19,23 @@ export const handleNewLine = (
 
   //LIST
   if (note.type === "list") {
-    note.listItems?.push({
-      content: "",
-      id: v4(),
-    });
+    if (caretPos === 0) {
+      notesCopy.notes.splice(lineIndex, 0, {
+        type: "newNote",
+        content: "",
+        id: newNoteId,
+      });
+    } else {
+      note.listItems?.push({
+        content: "",
+        id: newNoteId,
+      });
+      setSelectionRange({
+        elementId: newNoteId,
+        start: 0,
+        end: 0,
+      });
+    }
     setCurrentNotes(notesCopy);
     return;
   }
@@ -33,9 +46,14 @@ export const handleNewLine = (
       content: "",
       id: newNoteId,
     });
+    setSelectionRange({
+      elementId: newNoteId,
+      start: 0,
+      end: 0,
+    });
   }
-  //FROM MIDDLE OR BEGINNING OF LINE
-  if (caretPos < note.content.length) {
+  //FROM MIDDLE OF LINE
+  if (caretPos < note.content.length && caretPos > 0) {
     notesCopy.notes.splice(lineIndex + 1, 0, {
       type: "newNote",
       content: note.content.slice(caretPos, note.content.length),
@@ -45,11 +63,18 @@ export const handleNewLine = (
     if (lineRef.current) {
       lineRef.current.childNodes[0].textContent = note.content;
     }
+    setSelectionRange({
+      elementId: newNoteId,
+      start: 0,
+      end: 0,
+    });
+  }
+  if (caretPos === 0) {
+    notesCopy.notes.splice(lineIndex, 0, {
+      type: "newNote",
+      content: "",
+      id: newNoteId,
+    });
   }
   setCurrentNotes(notesCopy);
-  setSelectionRange({
-    elementId: newNoteId,
-    start: 0,
-    end: 0,
-  });
 };

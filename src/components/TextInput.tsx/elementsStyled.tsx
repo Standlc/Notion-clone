@@ -44,7 +44,7 @@ export const InputLine = styled.div<{ padding: string; fontSize: string }>`
   }
 `;
 export const ListContainer = styled.div`
-  padding: 10px 0px;
+  padding: 10px 10px 10px 0px;
   width: 100%;
   display: flex;
   align-items: flex-start;
