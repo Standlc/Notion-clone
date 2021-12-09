@@ -40,7 +40,7 @@ export const handleNewLine = (
     return;
   }
   //FROM END OF LINE
-  if (caretPos === note.content.length) {
+  if (caretPos === note.content.length && note.content) {
     notesCopy.notes.splice(lineIndex + 1, 0, {
       type: "newNote",
       content: "",
