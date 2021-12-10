@@ -1,4 +1,4 @@
-import { List, NoteElement, NotesFile } from "../../../../App";
+import { List, NoteElement } from "../../../../App";
 
 export const handleItemNavigation = (
   e: React.KeyboardEvent<HTMLDivElement>,

@@ -1,11 +1,8 @@
-import { List, NoteElement, NotesFile } from "../../../App";
+import { List, NotesFile } from "../../../App";
 
 export const handleListItemInput = (
-  e: React.FormEvent<HTMLDivElement>,
   listItem: List,
   listItemRef: React.RefObject<HTMLDivElement>,
-  listParent: NoteElement,
-  setSelectionRange: React.Dispatch<React.SetStateAction<Range | null>>,
   currentNotes: NotesFile,
   setCurrentNotes: React.Dispatch<React.SetStateAction<NotesFile>>
 ) => {

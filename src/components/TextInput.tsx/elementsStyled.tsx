@@ -65,7 +65,7 @@ export const DividerWrapper = styled.div<{ elementIsSelected: boolean }>`
     props.elementIsSelected ? "rgba(46, 170, 220, 0.2)" : "transparent"};
   transition: background-color 100ms;
 `;
-export const DividerInput = styled.div`
+export const HiddenInput = styled.div`
   position: absolute;
   top: 0;
   z-index: -5;
@@ -79,7 +79,6 @@ export const Divider = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
 `;
 export const Wrapper = styled.div`
-  position: relative;
   width: 100%;
   margin: 2px 0;
   display: flex;
@@ -90,10 +89,10 @@ export const Wrapper = styled.div`
 `;
 export const Image = styled.img`
   width: 100%;
-  border-radius: 5px;
+  border-radius: 3px;
   object-fit: contain;
 `;
-export const ImageInput = styled.label`
+export const ImageInput = styled.label<{ elementIsSelected: boolean }>`
   padding: 7px;
   width: 100%;
   background-color: rgb(20, 30, 37);
@@ -104,6 +103,8 @@ export const ImageInput = styled.label`
   transition: background-color 100ms;
   color: gray;
   &:hover {
-    background-color: rgb(27, 40, 49);
+    background-color: rgb(36, 56, 70);
   }
+  background-color: ${(props) =>
+    props.elementIsSelected ? "rgba(46, 170, 220, 0.2)" : "rgb(25, 38, 48)"};
 `;

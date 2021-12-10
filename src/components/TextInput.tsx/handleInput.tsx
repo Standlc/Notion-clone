@@ -13,7 +13,6 @@ export const handleInput = (
   >,
   setMenuOptionIndex: React.Dispatch<React.SetStateAction<number>>
 ) => {
-  const caretPos = getSelection()?.getRangeAt(0).endOffset;
   const nativeEvent = e.nativeEvent as InputEvent;
 
   if (lineRef && lineRef.current?.innerHTML !== undefined) {
@@ -37,7 +36,6 @@ export const handleInput = (
     nativeEvent.data !== "ArrowUp" &&
     nativeEvent.data !== "ArrowDown"
   ) {
-    console.log(nativeEvent.data);
     setShowMenu(false);
     setMenuOptionIndex(0);
   }

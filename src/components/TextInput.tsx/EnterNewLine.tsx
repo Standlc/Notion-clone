@@ -8,30 +8,36 @@ export const handleNewLine = (
   setCurrentNotes: React.Dispatch<React.SetStateAction<NotesFile>>,
   note: NoteElement,
   lineRef: React.RefObject<HTMLDivElement>,
-  setSelectionRange: React.Dispatch<React.SetStateAction<Range | null>>
+  setSelectionRange: React.Dispatch<React.SetStateAction<Range | null>>,
+  setShowList: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const caretPos = getSelection()?.getRangeAt(0).endOffset;
   const lineIndex = currentNotes.notes.indexOf(note);
   e.preventDefault();
   if (caretPos === undefined) return;
-  const newNoteId = v4();
+  const newLineID = v4();
   const notesCopy = { ...currentNotes };
 
   //LIST
   if (note.type === "list") {
+    setShowList(true);
     if (caretPos === 0) {
       notesCopy.notes.splice(lineIndex, 0, {
         type: "newNote",
         content: "",
-        id: newNoteId,
+        id: newLineID,
       });
     } else {
-      note.listItems?.push({
-        content: "",
-        id: newNoteId,
+      note.listItems?.unshift({
+        content: note.content.slice(caretPos, note.content.length),
+        id: newLineID,
       });
+      note.content = note.content.slice(0, caretPos);
+      if (lineRef.current) {
+        lineRef.current.childNodes[0].textContent = note.content;
+      }
       setSelectionRange({
-        elementId: newNoteId,
+        elementId: newLineID,
         start: 0,
         end: 0,
       });
@@ -39,41 +45,29 @@ export const handleNewLine = (
     setCurrentNotes(notesCopy);
     return;
   }
-  //FROM END OF LINE
-  if (caretPos === note.content.length && note.content) {
-    notesCopy.notes.splice(lineIndex + 1, 0, {
-      type: "newNote",
-      content: "",
-      id: newNoteId,
-    });
-    setSelectionRange({
-      elementId: newNoteId,
-      start: 0,
-      end: 0,
-    });
-  }
-  //FROM MIDDLE OF LINE
-  if (caretPos < note.content.length && caretPos > 0) {
+  //FROM MIDDLE OR END OF LINE
+  if (caretPos > 0) {
     notesCopy.notes.splice(lineIndex + 1, 0, {
       type: "newNote",
       content: note.content.slice(caretPos, note.content.length),
-      id: newNoteId,
+      id: newLineID,
     });
     note.content = note.content.slice(0, caretPos);
     if (lineRef.current) {
       lineRef.current.childNodes[0].textContent = note.content;
     }
     setSelectionRange({
-      elementId: newNoteId,
+      elementId: newLineID,
       start: 0,
       end: 0,
     });
   }
+  //FROM POSITION 0
   if (caretPos === 0) {
     notesCopy.notes.splice(lineIndex, 0, {
       type: "newNote",
       content: "",
-      id: newNoteId,
+      id: newLineID,
     });
   }
   setCurrentNotes(notesCopy);

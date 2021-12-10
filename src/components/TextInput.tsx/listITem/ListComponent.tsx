@@ -2,10 +2,8 @@ import styled from "styled-components";
 import { NoteElement, List, NotesFile } from "../../../App";
 import React, {
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
-  useState,
 } from "react";
 import { RadioButtonChecked, RadioButtonUnchecked } from "@material-ui/icons";
 import { SelectionRangeContext } from "../../../selectionRange";
@@ -61,9 +59,6 @@ const ListComponent: React.FC<Props> = ({
   const { selectionRange, setSelectionRange } = useContext(
     SelectionRangeContext
   );
-  const [prevListItem, setPrevListItem] = useState<false | HTMLElement | null>(
-    null
-  );
   const listItemRef: React.RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
 
@@ -78,9 +73,8 @@ const ListComponent: React.FC<Props> = ({
     range.setEnd(childNode, selectionRange.end);
     getSelection()?.removeAllRanges();
     getSelection()?.addRange(range);
-  }, [selectionRange, listItemRef]);
+  }, [selectionRange, item.id]);
 
-  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {};
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     //ENTER NEW LIST ITEM
     if (e.key === "Enter") {
@@ -99,7 +93,6 @@ const ListComponent: React.FC<Props> = ({
       handleDeleteListItem(
         e,
         item,
-        listItemRef,
         listParent,
         setSelectionRange,
         currentNotes,
@@ -134,11 +127,8 @@ const ListComponent: React.FC<Props> = ({
   };
   const handeInput = (e: React.FormEvent<HTMLDivElement>) => {
     handleListItemInput(
-      e,
       item,
       listItemRef,
-      listParent,
-      setSelectionRange,
       currentNotes,
       setCurrentNotes
     );

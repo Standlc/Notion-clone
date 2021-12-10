@@ -41,7 +41,7 @@ const MenuItem = styled.div<{ selected: boolean }>`
     background-color: rgb(14, 21, 27);
   }
   background-color: ${(props) =>
-    props.selected ? "rgb(14, 21, 27)" : "rgba(2, 5, 8, 1)"};
+    props.selected ? "rgba(46, 170, 220, 0.2)" : "rgba(2, 5, 8, 1)"};
   transition: background-color 100ms;
   cursor: pointer;
 `;
@@ -92,7 +92,7 @@ const Controls: React.FC<Props> = ({
       setMenuOptionIndex(0);
       setEnter(false);
     }
-  }, [enter, menuOptionIndex, setEnter]);
+  }, [enter, menuOptionIndex, focusedNote?.type, setMenuOptionIndex, setEnter]);
 
   return (
     showMenu && (

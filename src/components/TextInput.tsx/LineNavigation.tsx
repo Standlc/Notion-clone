@@ -2,7 +2,6 @@ import { NoteElement, NotesFile } from "../../App";
 
 export const handleLineNavigation = (
   e: React.KeyboardEvent<HTMLDivElement>,
-  direction: string,
   setSelectionRange: any,
   note: NoteElement,
   currentNotes: NotesFile
@@ -13,9 +12,23 @@ export const handleLineNavigation = (
   const nextNode = currentNotes.notes[lineIndex + 1];
   const caretPos = getSelection()?.getRangeAt(0).endOffset;
   if (caretPos === undefined) return;
+
   //UP
-  if (direction === "up") {
-    if (prevNode?.content.length < caretPos && prevNode) {
+  if (e.key === "ArrowUp" && prevNode) {
+    if (prevNode.listItems !== undefined && prevNode.listItems?.length > 0) {
+      const lastChild = prevNode.listItems[prevNode.listItems.length - 1];
+      caretPos > lastChild.content.length
+        ? setSelectionRange({
+            elementId: lastChild.id,
+            start: lastChild.content.length,
+            end: lastChild.content.length,
+          })
+        : setSelectionRange({
+            elementId: lastChild.id,
+            start: caretPos,
+            end: caretPos,
+          });
+    } else if (prevNode?.content.length < caretPos && prevNode) {
       setSelectionRange({
         elementId: prevNode.id,
         start: prevNode.content.length,
@@ -30,11 +43,10 @@ export const handleLineNavigation = (
     }
   }
   //DOWN
-  if (direction === "down") {
+  if (e.key === "ArrowDown") {
     //GO TO FIRST ITEM OF LIST
-    if (note.type === "list" && note.listItems) {
+    if (note.listItems !== undefined && note.listItems.length > 0) {
       const listFirstItem = note.listItems[0];
-      console.log(caretPos);
       if (listFirstItem?.content.length < caretPos && listFirstItem) {
         setSelectionRange({
           elementId: listFirstItem.id,

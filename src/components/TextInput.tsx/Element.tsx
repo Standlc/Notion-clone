@@ -1,6 +1,5 @@
-import styled from "styled-components";
 import { NoteElement, NotesFile, SelectionProps } from "../../App";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import ListComponent from "./listITem/ListComponent";
 import {
   ArrowRight,
@@ -18,7 +17,7 @@ import { hanldeMenuNavigation } from "./menuNavigation";
 import { handleInput } from "./handleInput";
 import {
   Divider,
-  DividerInput,
+  HiddenInput,
   DividerWrapper,
   Function,
   Image,
@@ -28,7 +27,6 @@ import {
   Triangle,
   Wrapper,
 } from "./elementsStyled";
-
 interface Props {
   note: NoteElement;
   currentNotes: NotesFile;
@@ -57,18 +55,12 @@ const Element: React.FC<Props> = ({
   setMenuOptionIndex,
   setEnter,
 }) => {
-  const [prevNote, setPrevNote] = useState<HTMLElement | null>(null);
   const lineRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const [showList, setShowList] = useState(true);
   const { selectionRange, setSelectionRange } = useContext(
     SelectionRangeContext
   );
   const [elementIsSelected, setElementIsSelected] = useState<boolean>(false);
-
-  useEffect(() => {
-    const lineIndex = currentNotes.notes.indexOf(note);
-    setPrevNote(document.getElementById(currentNotes.notes[lineIndex - 1]?.id));
-  }, [currentNotes, note]);
 
   useLayoutEffect(() => {
     const range = new Range();
@@ -83,7 +75,7 @@ const Element: React.FC<Props> = ({
     range.setEnd(childNode, selectionRange.end);
     getSelection()?.removeAllRanges();
     getSelection()?.addRange(range);
-  }, [selectionRange]);
+  }, [selectionRange, note.id]);
 
   //DELETE NOTE
   const handleRemoveNote = () => {
@@ -110,7 +102,8 @@ const Element: React.FC<Props> = ({
         setCurrentNotes,
         note,
         lineRef,
-        setSelectionRange
+        setSelectionRange,
+        setShowList
       );
     }
     //MENU NAVIAGTION
@@ -125,43 +118,23 @@ const Element: React.FC<Props> = ({
     }
     //DELETE NOTE
     if (e.key === "Backspace") {
-      const caretPos = getSelection()?.getRangeAt(0).endOffset;
-      const lineLength = lineRef.current?.childNodes[0].textContent?.length;
-      if (
-        lineLength === 1 &&
-        caretPos === lineLength &&
-        lineRef.current?.childNodes[0]
-      ) {
-        e.preventDefault();
-        note.content = "";
-        if (lineRef.current) lineRef.current.childNodes[0].textContent = "";
-        const currentNotesCopy = { ...currentNotes };
-        setCurrentNotes(currentNotesCopy);
-        setShowMenu(false);
-      } else
-        handleDeleteLine(
-          e,
-          prevNote,
-          lineRef,
-          currentNotes,
-          setCurrentNotes,
-          note,
-          setSelectionRange
-        );
+      handleDeleteLine(
+        e,
+        currentNotes,
+        setCurrentNotes,
+        note,
+        setSelectionRange
+      );
     }
-    //GO UP
-    if (e.key === "ArrowUp" && !showMenu) {
-      handleLineNavigation(e, "up", setSelectionRange, note, currentNotes);
-    }
-    //GO DOWN
-    if (e.key === "ArrowDown" && !showMenu) {
-      handleLineNavigation(e, "down", setSelectionRange, note, currentNotes);
+    //LINE NAVIGATION
+    if ((e.key === "ArrowUp" || e.key === "ArrowDown") && !showMenu) {
+      handleLineNavigation(e, setSelectionRange, note, currentNotes);
     }
   };
   //IMAGE
   const [file, setFile] = useState(null);
   const handleImage = (e: any) => {
-    setFile(e.target.files[0]);
+    !e.target.files[0] ? setFile(file) : setFile(e.target.files[0]);
   };
 
   const handleTextInput = (e: React.FormEvent<HTMLDivElement>) => {
@@ -230,20 +203,24 @@ const Element: React.FC<Props> = ({
             >
               <ArrowRight fontSize="medium" />
             </Triangle>
-            <InputLine
-              onClick={handleClick}
-              ref={lineRef}
-              id={note.id}
-              onInput={handleTextInput}
-              contentEditable="true"
-              suppressContentEditableWarning={true}
-              onKeyDown={handleKeyDown}
-              padding="0px"
-              fontSize="16px"
-            >
-              <Text value={note.content} />
-            </InputLine>
-            {elementIsSelected && !note.content && <PlaceHolder note={note} />}
+            <div style={{ position: "relative", width: "100%" }}>
+              <InputLine
+                onClick={handleClick}
+                ref={lineRef}
+                id={note.id}
+                onInput={handleTextInput}
+                contentEditable="true"
+                suppressContentEditableWarning={true}
+                onKeyDown={handleKeyDown}
+                padding="0px"
+                fontSize="16px"
+              >
+                <Text value={note.content} />
+              </InputLine>
+              {elementIsSelected && !note.content && (
+                <PlaceHolder note={note} />
+              )}
+            </div>
           </div>
           {showList &&
             note.listItems?.map((item) => (
@@ -262,8 +239,9 @@ const Element: React.FC<Props> = ({
           onClick={handleClick}
           elementIsSelected={elementIsSelected}
         >
-          <Divider id={note.id} />
-          <DividerInput
+          <Divider />
+          <HiddenInput
+            id={note.id}
             ref={lineRef}
             contentEditable="true"
             suppressContentEditableWarning={true}
@@ -273,8 +251,41 @@ const Element: React.FC<Props> = ({
             }}
           >
             {" "}
-          </DividerInput>
+          </HiddenInput>
         </DividerWrapper>
+      )}
+      {note.type === "image" && (
+        <ImageInput elementIsSelected={elementIsSelected} htmlFor="fileInput">
+          {!file && (
+            <>
+              <InsertPhoto
+                fontSize="large"
+                style={{ marginRight: "6px", color: "white" }}
+              />
+              Add an image
+            </>
+          )}
+          <input
+            id="fileInput"
+            type="file"
+            accept=".png, .jpeg, .jpg"
+            style={{ display: "none" }}
+            onChange={handleImage}
+          />
+          {file && <Image alt="" src={URL.createObjectURL(file)} />}
+          <HiddenInput
+            id={note.id}
+            ref={lineRef}
+            contentEditable="true"
+            suppressContentEditableWarning={true}
+            onKeyDown={(e) => {
+              handleKeyDown(e);
+              e.preventDefault();
+            }}
+          >
+            {" "}
+          </HiddenInput>
+        </ImageInput>
       )}
     </Wrapper>
   );
@@ -287,25 +298,3 @@ const Text = React.memo(
   },
   (prevProps, props) => !!props.value
 );
-
-// {note.type === "image" && (
-//   <ImageInput htmlFor="fileInput">
-//     {!file && (
-//       <>
-//         <InsertPhoto
-//           fontSize="large"
-//           style={{ marginRight: "10px", color: "white" }}
-//         />
-//         Add an image
-//       </>
-//     )}
-//     <Paragraph
-//       id="fileInput"
-//       type="file"
-//       accept=".png, .jpeg, .jpg"
-//       style={{ display: "none" }}
-//       onChange={handleImage}
-//     />
-//     {file && <Image alt="" src={URL.createObjectURL(file)} />}
-//   </ImageInput>
-// )}

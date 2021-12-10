@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import EditorComponent from "./components/EditorComponent";
-import SideBar from "./components/SideBar";
 import { pagesFolder } from "../src/pagesData";
 import { RangeProvider } from "./selectionRange";
 
