@@ -3,6 +3,7 @@ import styled from "styled-components";
 import EditorComponent from "./components/EditorComponent";
 import { pagesFolder } from "../src/pagesData";
 import { RangeProvider } from "./selectionRange";
+import { v4 } from "uuid";
 
 export interface SelectionProps {
   selectionBoundings: {
@@ -38,8 +39,25 @@ const Container = styled.div`
 const App = () => {
   const [notesFolder, setNotesFolder] = useState<NotesFile[]>(pagesFolder);
 
-  const [currentNotes, setCurrentNotes] = useState<NotesFile>(pagesFolder[0]);
+  const [currentNotes, setCurrentNotes] = useState<NotesFile>({
+    title: "",
+    notes: [
+      {
+        type: "newNote",
+        content: "",
+        id: v4(),
+      },
+    ],
+    id: v4(),
+  });
 
+  useEffect(() => {
+    const stringifiedStoredPage = localStorage.getItem("currentPage");
+    if (stringifiedStoredPage) {
+      const storedPage = JSON.parse(stringifiedStoredPage);
+      if (storedPage) setCurrentNotes(storedPage);
+    }
+  }, []);
   useEffect(() => {
     const notesFolderCopy = notesFolder.slice();
     const currentNotesCopy = notesFolderCopy.find(
@@ -50,7 +68,9 @@ const App = () => {
       currentNotesCopy.notes = currentNotes.notes;
     }
     setNotesFolder(notesFolderCopy);
-  }, [currentNotes]);
+    //LOCAL STORAGE
+    localStorage.setItem("currentPage", JSON.stringify(currentNotes));
+  }, [currentNotes, currentNotes.id]);
 
   return (
     <RangeProvider>

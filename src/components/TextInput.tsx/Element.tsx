@@ -94,6 +94,8 @@ const Element: React.FC<Props> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (showMenu && (e.key === "ArrowLeft" || e.key === "ArrowRight"))
+      e.preventDefault();
     //ENTER NEW NOTE
     if (e.key === "Enter" && !showMenu) {
       handleNewLine(

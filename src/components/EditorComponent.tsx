@@ -16,7 +16,7 @@ const Container = styled.div`
   align-items: start;
   justify-content: center;
   overflow-y: auto;
-  padding-bottom: 50px;
+  padding-bottom: 280px;
 `;
 const Wrapper = styled.div`
   position: relative;
@@ -75,7 +75,12 @@ const EditorComponent: React.FC<Props> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === "ArrowDown") {
-      document.getElementById(currentNotes.notes[0].id)?.focus();
+      e.preventDefault();
+      setSelectionRange({
+        elementId: currentNotes.notes[0].id,
+        start: currentNotes.notes[0].content.length,
+        end: currentNotes.notes[0].content.length,
+      });
     }
   };
 
