@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import EditorComponent from "./components/EditorComponent";
 import { pagesFolder } from "../src/pagesData";
 import { RangeProvider } from "./selectionRange";
 import { v4 } from "uuid";
+import {
+  MouseSelectionProvider,
+} from "./mouseSelectionRect";
 
 export interface SelectionProps {
   selectionBoundings: {
@@ -21,7 +24,7 @@ export interface NoteElement {
   content: string;
   listItems?: List[];
   listType?: string;
-  img?: string;
+  img?: Blob | MediaSource | null;
   id: string;
 }
 export interface NotesFile {
@@ -38,7 +41,6 @@ const Container = styled.div`
 
 const App = () => {
   const [notesFolder, setNotesFolder] = useState<NotesFile[]>(pagesFolder);
-
   const [currentNotes, setCurrentNotes] = useState<NotesFile>({
     title: "",
     notes: [
@@ -50,7 +52,6 @@ const App = () => {
     ],
     id: v4(),
   });
-
   useEffect(() => {
     const stringifiedStoredPage = localStorage.getItem("currentPage");
     if (stringifiedStoredPage) {
@@ -74,18 +75,20 @@ const App = () => {
 
   return (
     <RangeProvider>
-      <Container>
-        {/* <SideBar
+      <MouseSelectionProvider>
+        <Container>
+          {/* <SideBar
         notesFolder={notesFolder}
         setNotesFolder={setNotesFolder}
         currentNotes={currentNotes}
         setCurrentNotes={setCurrentNotes}
       /> */}
-        <EditorComponent
-          currentNotes={currentNotes}
-          setCurrentNotes={setCurrentNotes}
-        />
-      </Container>
+          <EditorComponent
+            currentNotes={currentNotes}
+            setCurrentNotes={setCurrentNotes}
+          />
+        </Container>
+      </MouseSelectionProvider>
     </RangeProvider>
   );
 };

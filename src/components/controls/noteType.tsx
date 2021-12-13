@@ -17,7 +17,7 @@ export const handleNoteType = (
   if (caretPos === undefined) return;
 
   //DIVIDER
-  if (type === "divider") {
+  if (type === "divider" || type === "image") {
     if (focusedNote?.content === "/") {
       focusedNote.type = type;
       currentNotes.notes.splice(lineIndex + 1, 0, {
@@ -32,7 +32,7 @@ export const handleNoteType = (
       });
     } else {
       currentNotes.notes.splice(lineIndex + 1, 0, {
-        type: "divider",
+        type: type,
         content: "",
         id: v4(),
       });
@@ -57,7 +57,7 @@ export const handleNoteType = (
     }
     if (type === "image") {
       if (focusedNote) {
-        focusedNote.img = "";
+        focusedNote.img = null;
       }
     }
     if (focusedNote) {

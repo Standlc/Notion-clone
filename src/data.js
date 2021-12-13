@@ -10,39 +10,39 @@ import {
 export const optionsData = {
   listTypes: [
     {
-      icon: <FormatListBulleted style={{ marginRight: "10px" }} />,
+      icon: <FormatListBulleted style={{ marginRight: "7px" }} />,
       type: "bullets",
       name: "Bullets",
     },
     {
-      icon: <RadioButtonChecked style={{ marginRight: "10px" }} />,
+      icon: <RadioButtonChecked style={{ marginRight: "7px" }} />,
       type: "checkbox",
       name: "Checkbox",
     },
   ],
   types: [
     {
-      icon: <TitleOutlined style={{ marginRight: "10px" }} />,
+      icon: <TitleOutlined style={{ marginRight: "7px" }} />,
       name: "Title",
       type: "title",
     },
     {
-      icon: <ShortText style={{ marginRight: "10px" }} />,
+      icon: <ShortText style={{ marginRight: "7px" }} />,
       name: "Paragraph",
       type: "paragraph",
     },
     {
-      icon: <FormatListBulleted style={{ marginRight: "10px" }} />,
+      icon: <FormatListBulleted style={{ marginRight: "7px" }} />,
       name: "List",
       type: "list",
     },
     {
-      icon: <Remove style={{ marginRight: "10px" }} />,
+      icon: <Remove style={{ marginRight: "7px" }} />,
       name: "Divider",
       type: "divider",
     },
     {
-      icon: <InsertPhoto style={{ marginRight: "10px" }} />,
+      icon: <InsertPhoto style={{ marginRight: "7px" }} />,
       name: "Image",
       type: "image",
     },

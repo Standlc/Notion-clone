@@ -24,8 +24,8 @@ const Menu = styled.div<SelectionProps>`
   z-index: 99;
   background-color: rgba(2, 5, 8, 1);
   color: white;
-  border-radius: 5px;
-  padding: 10px;
+  border-radius: 8px;
+  padding: 3px;
   margin-top: 30px;
   top: ${(props) => props.selectionBoundings.top}px;
   left: ${(props) => props.selectionBoundings.left}px;
@@ -34,8 +34,10 @@ const Menu = styled.div<SelectionProps>`
 const MenuItem = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
-  padding: 10px;
-  width: 150px;
+  padding: 7px;
+  margin: 3px;
+  width: 170px;
+  font-size: 15px;
   border-radius: 5px;
   &:hover {
     background-color: rgb(14, 21, 27);

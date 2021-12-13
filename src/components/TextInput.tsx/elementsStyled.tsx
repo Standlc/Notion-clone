@@ -78,14 +78,19 @@ export const Divider = styled.div`
   width: 100%;
   background-color: rgba(255, 255, 255, 0.2);
 `;
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{ isMouseSelected: boolean }>`
   width: 100%;
   margin: 2px 0;
+  padding: 2px;
   display: flex;
+  border-radius: 5px;
   align-items: center;
   &:hover ${Function} {
     visibility: visible;
   }
+  transition: background-color 200ms;
+  background-color: ${(props) =>
+    props.isMouseSelected ? "rgba(46, 170, 220, 0.2)" : "transparent"};
 `;
 export const Image = styled.img`
   width: 100%;

@@ -1,5 +1,5 @@
 import { NoteElement, NotesFile, SelectionProps } from "../../App";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ListComponent from "./listITem/ListComponent";
 import {
   ArrowRight,
@@ -27,6 +27,9 @@ import {
   Triangle,
   Wrapper,
 } from "./elementsStyled";
+import { MouseSelectionContext } from "../../mouseSelectionRect";
+import { handleRemoveBlock } from "./removeLine";
+import { handleIsSelected } from "./isSelected";
 interface Props {
   note: NoteElement;
   currentNotes: NotesFile;
@@ -41,6 +44,9 @@ interface Props {
   setMenuOptionIndex: React.Dispatch<React.SetStateAction<number>>;
   enter: boolean;
   setEnter: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedBlocks: string[];
+  setSelectedBlocks: React.Dispatch<React.SetStateAction<string[]>>;
+  enableSelection: boolean;
 }
 
 const Element: React.FC<Props> = ({
@@ -54,13 +60,32 @@ const Element: React.FC<Props> = ({
   menuOptionIndex,
   setMenuOptionIndex,
   setEnter,
+  selectedBlocks,
+  setSelectedBlocks,
+  enableSelection,
 }) => {
-  const lineRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [showList, setShowList] = useState(true);
   const { selectionRange, setSelectionRange } = useContext(
     SelectionRangeContext
   );
   const [elementIsSelected, setElementIsSelected] = useState<boolean>(false);
+  const [isMouseSelected, setIsMouseSelected] = useState<boolean>(false);
+  const { mouseSelection, setMouseSelection } = useContext(
+    MouseSelectionContext
+  );
+
+  useEffect(() => {
+    handleIsSelected(
+      note.id,
+      wrapperRef,
+      mouseSelection,
+      selectedBlocks,
+      setSelectedBlocks,
+      setIsMouseSelected
+    );
+  }, [mouseSelection]);
 
   useLayoutEffect(() => {
     const range = new Range();
@@ -77,20 +102,8 @@ const Element: React.FC<Props> = ({
     getSelection()?.addRange(range);
   }, [selectionRange, note.id]);
 
-  //DELETE NOTE
-  const handleRemoveNote = () => {
-    const noteId = note.id;
-    if (currentNotes.notes.length === 1) {
-      note.content = "";
-      if (lineRef.current?.innerHTML)
-        lineRef.current.childNodes[0].textContent = "";
-      return;
-    }
-    currentNotes.notes = currentNotes.notes.filter(
-      (note) => note.id !== noteId
-    );
-    const currentNotesCopy = { ...currentNotes };
-    setCurrentNotes(currentNotesCopy);
+  const removeBlock = () => {
+    handleRemoveBlock(note, lineRef, currentNotes, setCurrentNotes);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -98,6 +111,16 @@ const Element: React.FC<Props> = ({
       e.preventDefault();
     //ENTER NEW NOTE
     if (e.key === "Enter" && !showMenu) {
+      setMouseSelection({
+        top: 0,
+        left: 0,
+        height: 0,
+        width: 0,
+        bottomOrigin: 0,
+        topOrigin: 0,
+        leftOrigin: 0,
+        rightOrigin: 0,
+      });
       handleNewLine(
         e,
         currentNotes,
@@ -120,6 +143,16 @@ const Element: React.FC<Props> = ({
     }
     //DELETE NOTE
     if (e.key === "Backspace") {
+      setMouseSelection({
+        top: 0,
+        left: 0,
+        height: 0,
+        width: 0,
+        bottomOrigin: 0,
+        topOrigin: 0,
+        leftOrigin: 0,
+        rightOrigin: 0,
+      });
       handleDeleteLine(
         e,
         currentNotes,
@@ -134,9 +167,18 @@ const Element: React.FC<Props> = ({
     }
   };
   //IMAGE
-  const [file, setFile] = useState(null);
-  const handleImage = (e: any) => {
-    !e.target.files[0] ? setFile(file) : setFile(e.target.files[0]);
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files[0]) {
+      const currentNotesCopy = { ...currentNotes };
+      const lineCopy = currentNotes.notes.find((line) => line.id === note.id);
+      console.log(lineCopy);
+      if (lineCopy) {
+        lineCopy.content = "ijuhgv";
+        lineCopy.img = files[0];
+      }
+      setCurrentNotes(currentNotesCopy);
+    }
   };
 
   const handleTextInput = (e: React.FormEvent<HTMLDivElement>) => {
@@ -162,8 +204,8 @@ const Element: React.FC<Props> = ({
   };
 
   return (
-    <Wrapper>
-      <Function onClick={handleRemoveNote}>
+    <Wrapper isMouseSelected={isMouseSelected} ref={wrapperRef}>
+      <Function onClick={removeBlock}>
         <Remove fontSize="medium" />
       </Function>
       <Function style={{ cursor: "grab" }}>
@@ -174,6 +216,7 @@ const Element: React.FC<Props> = ({
         note.type === "title") && (
         <div style={{ position: "relative", width: "100%" }}>
           <InputLine
+            spellCheck="false"
             onClick={handleClick}
             ref={lineRef}
             id={note.id}
@@ -207,6 +250,7 @@ const Element: React.FC<Props> = ({
             </Triangle>
             <div style={{ position: "relative", width: "100%" }}>
               <InputLine
+                spellCheck="false"
                 onClick={handleClick}
                 ref={lineRef}
                 id={note.id}
@@ -258,7 +302,7 @@ const Element: React.FC<Props> = ({
       )}
       {note.type === "image" && (
         <ImageInput elementIsSelected={elementIsSelected} htmlFor="fileInput">
-          {!file && (
+          {!note.img && (
             <>
               <InsertPhoto
                 fontSize="large"
@@ -274,7 +318,7 @@ const Element: React.FC<Props> = ({
             style={{ display: "none" }}
             onChange={handleImage}
           />
-          {file && <Image alt="" src={URL.createObjectURL(file)} />}
+          {note.img && <Image alt="" src={URL.createObjectURL(note.img)} />}
           <HiddenInput
             id={note.id}
             ref={lineRef}

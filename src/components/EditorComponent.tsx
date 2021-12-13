@@ -5,6 +5,10 @@ import Element from "./TextInput.tsx/Element";
 import { v4 } from "uuid";
 import Controls from "./controls/Controls";
 import { SelectionRangeContext } from "../selectionRange";
+import { MouseSelectionContext } from "../mouseSelectionRect";
+import { handleInitializingSelection } from "./mouseSelectionFunctions/initialize";
+import { handleSelectionDimensions } from "./mouseSelectionFunctions/dimisensions";
+import { handleStopSelecting } from "./mouseSelectionFunctions/stopSelecting";
 
 type Props = {
   currentNotes: NotesFile;
@@ -30,7 +34,7 @@ const Title = styled.input`
   padding: 0 20px;
   border-radius: 5px;
   color: white;
-  font-size: 50px;
+  font-size: 40px;
   font-weight: 600;
   border: none;
   background-color: rgb(5, 10, 15);
@@ -46,6 +50,14 @@ const Divider = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
   margin: 30px 0px;
 `;
+const SelectRect = styled.div`
+  position: fixed;
+  z-index: 99;
+  background-color: rgba(46, 170, 220, 0.2);
+  visibility: hidden;
+  border-radius: 5px;
+`;
+
 const EditorComponent: React.FC<Props> = ({
   currentNotes,
   setCurrentNotes,
@@ -66,6 +78,9 @@ const EditorComponent: React.FC<Props> = ({
   const { selectionRange, setSelectionRange } = useContext(
     SelectionRangeContext
   );
+  const { mouseSelection, setMouseSelection } = useContext(
+    MouseSelectionContext
+  );
 
   const handleNoteTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const currentNotesCopy = { ...currentNotes };
@@ -73,7 +88,7 @@ const EditorComponent: React.FC<Props> = ({
     setCurrentNotes(currentNotesCopy);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDownTitle = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === "ArrowDown") {
       e.preventDefault();
       setSelectionRange({
@@ -84,29 +99,61 @@ const EditorComponent: React.FC<Props> = ({
     }
   };
 
+  const [selectedBlocks, setSelectedBlocks] = useState<string[]>([]);
+  const selectionRectRef = useRef<HTMLDivElement | null>(null);
+  const [enableSelection, setEnableSelection] = useState(false);
+  const initializingSelection = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    handleInitializingSelection(
+      e,
+      setEnableSelection,
+      setMouseSelection,
+      setSelectedBlocks
+    );
+  };
+  const selectionDimensions = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    handleSelectionDimensions(
+      e,
+      enableSelection,
+      mouseSelection,
+      selectionRectRef,
+      setMouseSelection
+    );
+  };
+  const stopSelecting = () => {
+    handleStopSelecting(selectionRectRef, setEnableSelection);
+  };
+
   const handleEditorClick = (e: any) => {
     setShowMenu(false);
     setMenuOptionIndex(0);
-    const lastNote = currentNotes.notes[currentNotes.notes.length - 1];
+    const lastBlock = currentNotes.notes[currentNotes.notes.length - 1];
     if (!wrapperRef.current?.contains(e.target)) {
-      const newLineId = v4();
-      if (lastNote.type !== "newNote" || lastNote.content) {
-        currentNotes.notes.push({
-          type: "newNote",
-          content: "",
-          id: newLineId,
+      const newBlockID = v4();
+      if (lastBlock.type !== "newNote" || lastBlock.content) {
+        setCurrentNotes({
+          ...currentNotes,
+          notes: [
+            ...currentNotes.notes,
+            {
+              type: "newNote",
+              content: "",
+              id: newBlockID,
+            },
+          ],
         });
-        const currentNotesCopy = { ...currentNotes };
-        setCurrentNotes(currentNotesCopy);
       }
       setSelectionRange({
-        elementId: newLineId,
+        elementId: newBlockID,
         start: 0,
         end: 0,
       });
-      if (lastNote.type === "newNote" && !lastNote.content) {
+      if (lastBlock.type === "newNote" && !lastBlock.content) {
         setSelectionRange({
-          elementId: lastNote.id,
+          elementId: lastBlock.id,
           start: 0,
           end: 0,
         });
@@ -115,12 +162,18 @@ const EditorComponent: React.FC<Props> = ({
   };
 
   return (
-    <Container onClick={handleEditorClick}>
+    <Container
+      onMouseDown={initializingSelection}
+      onMouseMove={selectionDimensions}
+      onMouseUp={stopSelecting}
+      onClick={handleEditorClick}
+    >
       {currentNotes && (
         <>
           <Wrapper ref={wrapperRef}>
+            <SelectRect ref={selectionRectRef} />
             <Title
-              onKeyDown={handleKeyDown}
+              onKeyDown={handleKeyDownTitle}
               spellCheck="false"
               placeholder="Untitled"
               onChange={handleNoteTitle}
@@ -141,6 +194,9 @@ const EditorComponent: React.FC<Props> = ({
                 setMenuOptionIndex={setMenuOptionIndex}
                 enter={enter}
                 setEnter={setEnter}
+                selectedBlocks={selectedBlocks}
+                setSelectedBlocks={setSelectedBlocks}
+                enableSelection={enableSelection}
               />
             ))}
           </Wrapper>

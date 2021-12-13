@@ -18,8 +18,12 @@ export const handleDeleteLine = (
     e.preventDefault();
     return;
   }
-
-  if (caretPos === 0) {
+  if (
+    (caretPos === 0 &&
+      prevNode.type !== "divider" &&
+      prevNode.type !== "image") ||
+    note.content === ""
+  ) {
     e.preventDefault();
     if (lineIndex === 0) {
       setSelectionRange({
