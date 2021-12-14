@@ -113,9 +113,12 @@ const SideBar: React.FC<Props> = ({
     setCurrentNotes(newPage);
     setNotesFolder(notesFolderCopy);
   };
-  const DeletePage = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, Id: string) => {
-    e.stopPropagation()
-    if(notesFolder[0]){
+  const DeletePage = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    Id: string
+  ) => {
+    e.stopPropagation();
+    if (notesFolder[0]) {
       setCurrentNotes(notesFolder[0]);
     }
     setNotesFolder(notesFolder.filter((notesFile) => notesFile.id !== Id));

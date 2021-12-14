@@ -44,7 +44,7 @@ export const InputLine = styled.div<{ padding: string; fontSize: string }>`
   }
 `;
 export const ListContainer = styled.div`
-  padding: 10px 10px 10px 0px;
+  padding: 5px 10px 7px 0px;
   width: 100%;
   display: flex;
   align-items: flex-start;
@@ -60,10 +60,9 @@ export const DividerWrapper = styled.div<{ elementIsSelected: boolean }>`
   align-items: center;
   width: 100%;
   border-radius: 5px;
-  padding: 7px 7px;
+  padding: 5px 7px;
   background-color: ${(props) =>
     props.elementIsSelected ? "rgba(46, 170, 220, 0.2)" : "transparent"};
-  transition: background-color 100ms;
 `;
 export const HiddenInput = styled.div`
   position: absolute;
@@ -85,21 +84,38 @@ export const Wrapper = styled.div<{ isMouseSelected: boolean }>`
   display: flex;
   border-radius: 5px;
   align-items: center;
+  /* justify-content: center; */
   &:hover ${Function} {
     visibility: visible;
   }
-  transition: background-color 200ms;
+  transition: background-color 300ms;
   background-color: ${(props) =>
     props.isMouseSelected ? "rgba(46, 170, 220, 0.2)" : "transparent"};
 `;
 export const Image = styled.img`
   width: 100%;
-  border-radius: 3px;
+  border-radius: 5px;
   object-fit: contain;
 `;
+export const DragHandleWrapper = styled.div<{ side: string }>`
+  visibility: hidden;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: solid 1px white;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  width: 5px;
+  height: 150px;
+  border-radius: 50px;
+  ${(props) => props.side === "left" && "left: 25px;"}
+  ${(props) => props.side === "right" && "right: 25px;"}
+`;
 export const ImageInput = styled.label<{ elementIsSelected: boolean }>`
-  padding: 7px;
+  padding: 6px;
   width: 100%;
+  position: relative;
   background-color: rgb(20, 30, 37);
   border-radius: 5px;
   display: flex;
@@ -109,6 +125,9 @@ export const ImageInput = styled.label<{ elementIsSelected: boolean }>`
   color: gray;
   &:hover {
     background-color: rgb(36, 56, 70);
+  }
+  &:hover ${DragHandleWrapper} {
+    visibility: visible;
   }
   background-color: ${(props) =>
     props.elementIsSelected ? "rgba(46, 170, 220, 0.2)" : "rgb(25, 38, 48)"};

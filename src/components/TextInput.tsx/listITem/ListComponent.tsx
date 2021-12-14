@@ -1,10 +1,6 @@
 import styled from "styled-components";
 import { NoteElement, List, NotesFile } from "../../../App";
-import React, {
-  useContext,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import React, { useContext, useLayoutEffect, useRef } from "react";
 import { RadioButtonChecked, RadioButtonUnchecked } from "@material-ui/icons";
 import { SelectionRangeContext } from "../../../selectionRange";
 import { handleItemNavigation } from "./lineNavigation/itemNavigation";
@@ -61,6 +57,7 @@ const ListComponent: React.FC<Props> = ({
   );
   const listItemRef: React.RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
+  const itemIndex = listParent.listItems?.indexOf(item);
 
   useLayoutEffect(() => {
     const range = new Range();
@@ -126,12 +123,7 @@ const ListComponent: React.FC<Props> = ({
     setCurrentNotes(notesCopy);
   };
   const handeInput = (e: React.FormEvent<HTMLDivElement>) => {
-    handleListItemInput(
-      item,
-      listItemRef,
-      currentNotes,
-      setCurrentNotes
-    );
+    handleListItemInput(item, listItemRef, currentNotes, setCurrentNotes);
   };
 
   const handleClick = () => {
@@ -145,19 +137,24 @@ const ListComponent: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      {listParent.listType === "bullets" ? (
-        <Dot />
-      ) : item.checked ? (
-        <RadioButtonChecked
-          onClick={() => handleCheckbox(false)}
-          style={{ fontSize: "medium", color: "white", cursor: "pointer" }}
-        />
-      ) : (
-        <RadioButtonUnchecked
-          onClick={() => handleCheckbox(true)}
-          style={{ fontSize: "medium", color: "white", cursor: "pointer" }}
-        />
+      {listParent.listType === "bullets" && <Dot />}
+      {listParent.listType === "numbered" && (
+        <span style={{ width: "20px", textAlign: "end", fontSize:'15px' }}>
+          {itemIndex ? itemIndex + 1 : 1} .
+        </span>
       )}
+      {listParent.listType === "checkbox" &&
+        (item.checked ? (
+          <RadioButtonChecked
+            onClick={() => handleCheckbox(false)}
+            style={{ fontSize: "medium", color: "white", cursor: "pointer" }}
+          />
+        ) : (
+          <RadioButtonUnchecked
+            onClick={() => handleCheckbox(true)}
+            style={{ fontSize: "medium", color: "white", cursor: "pointer" }}
+          />
+        ))}
       <InputLine
         onClick={handleClick}
         id={item.id}
@@ -166,6 +163,7 @@ const ListComponent: React.FC<Props> = ({
         ref={listItemRef}
         onInput={handeInput}
         onKeyDown={handleKeyDown}
+        spellCheck="false"
       >
         <Text value={item.content} />
       </InputLine>

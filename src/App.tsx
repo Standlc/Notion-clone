@@ -4,9 +4,9 @@ import EditorComponent from "./components/EditorComponent";
 import { pagesFolder } from "../src/pagesData";
 import { RangeProvider } from "./selectionRange";
 import { v4 } from "uuid";
-import {
-  MouseSelectionProvider,
-} from "./mouseSelectionRect";
+import { MouseSelectionProvider } from "./mouseSelectionRect";
+import SideBar from "./components/SideBar";
+import { ResizedDistanceProvider } from "./resizedDistanceContext";
 
 export interface SelectionProps {
   selectionBoundings: {
@@ -76,18 +76,20 @@ const App = () => {
   return (
     <RangeProvider>
       <MouseSelectionProvider>
-        <Container>
-          {/* <SideBar
+        <ResizedDistanceProvider>
+          <Container>
+            {/* <SideBar
         notesFolder={notesFolder}
         setNotesFolder={setNotesFolder}
         currentNotes={currentNotes}
         setCurrentNotes={setCurrentNotes}
       /> */}
-          <EditorComponent
-            currentNotes={currentNotes}
-            setCurrentNotes={setCurrentNotes}
-          />
-        </Container>
+            <EditorComponent
+              currentNotes={currentNotes}
+              setCurrentNotes={setCurrentNotes}
+            />
+          </Container>
+        </ResizedDistanceProvider>
       </MouseSelectionProvider>
     </RangeProvider>
   );

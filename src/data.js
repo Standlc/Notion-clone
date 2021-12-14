@@ -1,5 +1,6 @@
 import {
   FormatListBulleted,
+  FormatListNumbered,
   InsertPhoto,
   RadioButtonChecked,
   Remove,
@@ -12,12 +13,17 @@ export const optionsData = {
     {
       icon: <FormatListBulleted style={{ marginRight: "7px" }} />,
       type: "bullets",
-      name: "Bullets",
+      name: "Bulleted list",
     },
     {
       icon: <RadioButtonChecked style={{ marginRight: "7px" }} />,
       type: "checkbox",
-      name: "Checkbox",
+      name: "Toggle list",
+    },
+    {
+      icon: <FormatListNumbered style={{ marginRight: "7px" }} />,
+      type: "numbered",
+      name: "Numbered list",
     },
   ],
   types: [

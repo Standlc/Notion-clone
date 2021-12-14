@@ -12,7 +12,6 @@ export const handleLineNavigation = (
   const nextNode = currentNotes.notes[lineIndex + 1];
   const caretPos = getSelection()?.getRangeAt(0).endOffset;
   if (caretPos === undefined) return;
-
   //UP
   if (e.key === "ArrowUp" && prevNode) {
     if (prevNode.listItems !== undefined && prevNode.listItems?.length > 0) {

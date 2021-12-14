@@ -26,10 +26,12 @@ import {
   ListContainer,
   Triangle,
   Wrapper,
+  DragHandleWrapper,
 } from "./elementsStyled";
 import { MouseSelectionContext } from "../../mouseSelectionRect";
 import { handleRemoveBlock } from "./removeLine";
 import { handleIsSelected } from "./isSelected";
+import { ResizedDistanceContext } from "../../resizedDistanceContext";
 interface Props {
   note: NoteElement;
   currentNotes: NotesFile;
@@ -65,6 +67,7 @@ const Element: React.FC<Props> = ({
   enableSelection,
 }) => {
   const lineRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<any>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [showList, setShowList] = useState(true);
   const { selectionRange, setSelectionRange } = useContext(
@@ -75,7 +78,9 @@ const Element: React.FC<Props> = ({
   const { mouseSelection, setMouseSelection } = useContext(
     MouseSelectionContext
   );
-
+  const { setResizedDistance, resizedDistance } = useContext(
+    ResizedDistanceContext
+  );
   useEffect(() => {
     handleIsSelected(
       note.id,
@@ -180,7 +185,6 @@ const Element: React.FC<Props> = ({
       setCurrentNotes(currentNotesCopy);
     }
   };
-
   const handleTextInput = (e: React.FormEvent<HTMLDivElement>) => {
     handleInput(
       e,
@@ -202,9 +206,41 @@ const Element: React.FC<Props> = ({
       end: caretPos,
     });
   };
+  const initializeResize = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    setResizedDistance({ distance: 0, initialPos: e.pageX });
+  };
+  const [imageWidth, setImageWidth] = useState<number | undefined>();
+  useEffect(() => {
+    setImageWidth(imageRef.current?.getBoundingClientRect().width);
+  }, [resizedDistance.initialPos]);
+  useLayoutEffect(() => {
+    if (imageRef.current && imageWidth) {
+      if (imageWidth - resizedDistance.distance < 300) {
+        imageRef.current.style.width = `300px`;
+      } else
+        imageRef.current.style.width = `${
+          imageWidth - resizedDistance.distance
+        }px`;
+      if (resizedDistance.initialPos === 0) {
+        if (imageWidth - resizedDistance.distance < 300) {
+          imageRef.current.style.width = `300px`;
+        } else
+          imageRef.current.style.width = `${
+            imageWidth - resizedDistance.distance
+          }px`;
+      }
+    }
+  }, [resizedDistance]);
 
   return (
-    <Wrapper isMouseSelected={isMouseSelected} ref={wrapperRef}>
+    <Wrapper
+      onMouseDown={(e) => e.stopPropagation()}
+      isMouseSelected={isMouseSelected}
+      ref={wrapperRef}
+    >
       <Function onClick={removeBlock}>
         <Remove fontSize="medium" />
       </Function>
@@ -250,6 +286,10 @@ const Element: React.FC<Props> = ({
             </Triangle>
             <div style={{ position: "relative", width: "100%" }}>
               <InputLine
+                style={{
+                  textDecoration: "underline",
+                  textUnderlinePosition: "under",
+                }}
                 spellCheck="false"
                 onClick={handleClick}
                 ref={lineRef}
@@ -301,12 +341,16 @@ const Element: React.FC<Props> = ({
         </DividerWrapper>
       )}
       {note.type === "image" && (
-        <ImageInput elementIsSelected={elementIsSelected} htmlFor="fileInput">
+        <ImageInput
+          ref={imageRef}
+          elementIsSelected={elementIsSelected}
+          htmlFor="fileInput"
+        >
           {!note.img && (
             <>
               <InsertPhoto
                 fontSize="large"
-                style={{ marginRight: "6px", color: "white" }}
+                style={{ marginRight: "5px", color: "white" }}
               />
               Add an image
             </>
@@ -318,7 +362,14 @@ const Element: React.FC<Props> = ({
             style={{ display: "none" }}
             onChange={handleImage}
           />
-          {note.img && <Image alt="" src={URL.createObjectURL(note.img)} />}
+          {note.img && (
+            <>
+              <Image alt="" src={URL.createObjectURL(note.img)} />
+              <DragHandleWrapper onMouseDown={initializeResize} side="left" />
+
+              <DragHandleWrapper onMouseDown={initializeResize} side="right" />
+            </>
+          )}
           <HiddenInput
             id={note.id}
             ref={lineRef}

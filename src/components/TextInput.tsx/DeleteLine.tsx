@@ -20,8 +20,8 @@ export const handleDeleteLine = (
   }
   if (
     (caretPos === 0 &&
-      prevNode.type !== "divider" &&
-      prevNode.type !== "image") ||
+      prevNode?.type !== "divider" &&
+      prevNode?.type !== "image") ||
     note.content === ""
   ) {
     e.preventDefault();

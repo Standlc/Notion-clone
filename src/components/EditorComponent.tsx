@@ -9,6 +9,9 @@ import { MouseSelectionContext } from "../mouseSelectionRect";
 import { handleInitializingSelection } from "./mouseSelectionFunctions/initialize";
 import { handleSelectionDimensions } from "./mouseSelectionFunctions/dimisensions";
 import { handleStopSelecting } from "./mouseSelectionFunctions/stopSelecting";
+import { handleResizing } from "./TextInput.tsx/resizingImage/resizing";
+import { handleStopResizing } from "./TextInput.tsx/resizingImage/stopResizing";
+import { ResizedDistanceContext } from "../resizedDistanceContext";
 
 type Props = {
   currentNotes: NotesFile;
@@ -28,11 +31,11 @@ const Wrapper = styled.div`
   max-width: 800px;
   color: white;
   width: 100%;
-  padding: 50px 50px 0px 50px;
+  padding: 30px 50px 0px 50px;
 `;
 const Title = styled.input`
   padding: 0 20px;
-  border-radius: 5px;
+  border-radius: 10px;
   color: white;
   font-size: 40px;
   font-weight: 600;
@@ -48,7 +51,7 @@ const Divider = styled.div`
   height: 1px;
   width: 100%;
   background-color: rgba(255, 255, 255, 0.2);
-  margin: 30px 0px;
+  margin: 20px 0px;
 `;
 const SelectRect = styled.div`
   position: fixed;
@@ -81,6 +84,9 @@ const EditorComponent: React.FC<Props> = ({
   const { mouseSelection, setMouseSelection } = useContext(
     MouseSelectionContext
   );
+  const { setResizedDistance, resizedDistance } = useContext(
+    ResizedDistanceContext
+  );
 
   const handleNoteTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     const currentNotesCopy = { ...currentNotes };
@@ -112,6 +118,7 @@ const EditorComponent: React.FC<Props> = ({
       setSelectedBlocks
     );
   };
+
   const selectionDimensions = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -122,9 +129,11 @@ const EditorComponent: React.FC<Props> = ({
       selectionRectRef,
       setMouseSelection
     );
+    handleResizing(e, resizedDistance, setResizedDistance);
   };
   const stopSelecting = () => {
     handleStopSelecting(selectionRectRef, setEnableSelection);
+    handleStopResizing(resizedDistance,setResizedDistance);
   };
 
   const handleEditorClick = (e: any) => {
