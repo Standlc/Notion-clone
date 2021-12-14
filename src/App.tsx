@@ -24,7 +24,7 @@ export interface NoteElement {
   content: string;
   listItems?: List[];
   listType?: string;
-  img?: Blob | MediaSource | null;
+  img?: string | null;
   id: string;
 }
 export interface NotesFile {

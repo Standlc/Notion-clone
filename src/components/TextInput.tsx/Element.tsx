@@ -177,10 +177,8 @@ const Element: React.FC<Props> = ({
     if (files && files[0]) {
       const currentNotesCopy = { ...currentNotes };
       const lineCopy = currentNotes.notes.find((line) => line.id === note.id);
-      console.log(lineCopy);
       if (lineCopy) {
-        lineCopy.content = "ijuhgv";
-        lineCopy.img = files[0];
+        lineCopy.img = URL.createObjectURL(files[0]);
       }
       setCurrentNotes(currentNotesCopy);
     }
@@ -234,7 +232,7 @@ const Element: React.FC<Props> = ({
       }
     }
   }, [resizedDistance]);
-
+  console.log(currentNotes.notes);
   return (
     <Wrapper
       onMouseDown={(e) => e.stopPropagation()}
@@ -342,9 +340,10 @@ const Element: React.FC<Props> = ({
       )}
       {note.type === "image" && (
         <ImageInput
+          onClick={() => console.log(note)}
           ref={imageRef}
           elementIsSelected={elementIsSelected}
-          htmlFor="fileInput"
+          htmlFor={note.id + 1}
         >
           {!note.img && (
             <>
@@ -353,20 +352,18 @@ const Element: React.FC<Props> = ({
                 style={{ marginRight: "5px", color: "white" }}
               />
               Add an image
+              <input
+                id={note.id + 1}
+                type="file"
+                accept=".png, .jpeg, .jpg"
+                style={{ display: "none" }}
+                onChange={handleImage}
+              />
             </>
           )}
-          <input
-            id="fileInput"
-            type="file"
-            accept=".png, .jpeg, .jpg"
-            style={{ display: "none" }}
-            onChange={handleImage}
-          />
           {note.img && (
             <>
-              <Image alt="" src={URL.createObjectURL(note.img)} />
-              <DragHandleWrapper onMouseDown={initializeResize} side="left" />
-
+              <Image alt="" src={note.img} />
               <DragHandleWrapper onMouseDown={initializeResize} side="right" />
             </>
           )}

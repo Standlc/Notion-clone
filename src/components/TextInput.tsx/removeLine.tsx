@@ -11,9 +11,13 @@ export const handleRemoveBlock = (
     line.content = "";
     if (lineRef.current?.innerHTML)
       lineRef.current.childNodes[0].textContent = "";
-    return;
+    const currentNotesCopy = { ...currentNotes };
+    setCurrentNotes(currentNotesCopy);
   }
-  currentNotes.notes = currentNotes.notes.filter((line) => line.id !== noteId);
+  if (currentNotes.notes.length > 1)
+    currentNotes.notes = currentNotes.notes.filter(
+      (line) => line.id !== noteId
+    );
   const currentNotesCopy = { ...currentNotes };
   setCurrentNotes(currentNotesCopy);
 };

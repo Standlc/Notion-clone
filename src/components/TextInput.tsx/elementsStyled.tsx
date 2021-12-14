@@ -121,7 +121,7 @@ export const ImageInput = styled.label<{ elementIsSelected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: start;
-  transition: background-color 100ms;
+  transition: background-color 100ms, width 100ms;
   color: gray;
   &:hover {
     background-color: rgb(36, 56, 70);
