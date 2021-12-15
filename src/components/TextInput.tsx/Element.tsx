@@ -32,6 +32,7 @@ import { MouseSelectionContext } from "../../mouseSelectionRect";
 import { handleRemoveBlock } from "./removeLine";
 import { handleIsSelected } from "./isSelected";
 import { ResizedDistanceContext } from "../../resizedDistanceContext";
+import { handleStoreImage } from "./storeImage";
 interface Props {
   note: NoteElement;
   currentNotes: NotesFile;
@@ -173,15 +174,7 @@ const Element: React.FC<Props> = ({
   };
   //IMAGE
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files[0]) {
-      const currentNotesCopy = { ...currentNotes };
-      const lineCopy = currentNotes.notes.find((line) => line.id === note.id);
-      if (lineCopy) {
-        lineCopy.img = URL.createObjectURL(files[0]);
-      }
-      setCurrentNotes(currentNotesCopy);
-    }
+    handleStoreImage(e, note, currentNotes, setCurrentNotes);
   };
   const handleTextInput = (e: React.FormEvent<HTMLDivElement>) => {
     handleInput(
@@ -209,13 +202,14 @@ const Element: React.FC<Props> = ({
   ) => {
     e.stopPropagation();
     setResizedDistance({ distance: 0, initialPos: e.pageX });
+    setElementIsSelected(true);
   };
   const [imageWidth, setImageWidth] = useState<number | undefined>();
   useEffect(() => {
     setImageWidth(imageRef.current?.getBoundingClientRect().width);
   }, [resizedDistance.initialPos]);
   useLayoutEffect(() => {
-    if (imageRef.current && imageWidth) {
+    if (imageRef.current && imageWidth && elementIsSelected) {
       if (imageWidth - resizedDistance.distance < 300) {
         imageRef.current.style.width = `300px`;
       } else
@@ -223,6 +217,7 @@ const Element: React.FC<Props> = ({
           imageWidth - resizedDistance.distance
         }px`;
       if (resizedDistance.initialPos === 0) {
+        setElementIsSelected(false);
         if (imageWidth - resizedDistance.distance < 300) {
           imageRef.current.style.width = `300px`;
         } else
@@ -232,7 +227,6 @@ const Element: React.FC<Props> = ({
       }
     }
   }, [resizedDistance]);
-  console.log(currentNotes.notes);
   return (
     <Wrapper
       onMouseDown={(e) => e.stopPropagation()}

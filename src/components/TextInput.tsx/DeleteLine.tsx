@@ -16,9 +16,13 @@ export const handleDeleteLine = (
 
   if (currentNotes.notes.length === 1 && line.content === "") {
     line.type = "newNote";
+    setSelectionRange({
+      elementId: lineID,
+      start: line.content.length,
+      end: line.content.length,
+    });
     const currentNotesCopy = { ...currentNotes };
     setCurrentNotes(currentNotesCopy);
-    console.log("object");
     e.preventDefault();
     return;
   }

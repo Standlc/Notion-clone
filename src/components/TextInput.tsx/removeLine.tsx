@@ -9,6 +9,7 @@ export const handleRemoveBlock = (
   const noteId = line.id;
   if (currentNotes.notes.length === 1) {
     line.content = "";
+    line.type = "newNote";
     if (lineRef.current?.innerHTML)
       lineRef.current.childNodes[0].textContent = "";
     const currentNotesCopy = { ...currentNotes };
