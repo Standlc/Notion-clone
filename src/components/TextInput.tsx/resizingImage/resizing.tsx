@@ -1,7 +1,7 @@
 import { resizedDistance } from "../../../resizedDistanceContext";
 
 export const handleResizing = (
-  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  e: MouseEvent,
   resizedDistance: resizedDistance,
   setResizedDistance: React.Dispatch<React.SetStateAction<resizedDistance>>
 ) => {

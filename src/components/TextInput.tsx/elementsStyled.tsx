@@ -1,6 +1,15 @@
 import styled from "styled-components";
 
+export const ButtonsWrapper = styled.div`
+  left: 0px;
+  /* transform: translateX(100%); */
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 export const Function = styled.div`
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -39,9 +48,9 @@ export const InputLine = styled.div<{ padding: string; fontSize: string }>`
   &:focus {
     outline: none;
   }
-  &:hover {
+  /* &:hover {
     background-color: rgb(5, 10, 15);
-  }
+  } */
 `;
 export const ListContainer = styled.div`
   padding: 5px 10px 7px 0px;
@@ -79,12 +88,11 @@ export const Divider = styled.div`
 `;
 export const Wrapper = styled.div<{ isMouseSelected: boolean }>`
   width: 100%;
-  margin: 2px 0;
-  padding: 2px;
+  /* margin: 2px 0; */
+  /* padding: 2px; */
   display: flex;
   border-radius: 5px;
   align-items: center;
-  /* justify-content: center; */
   &:hover ${Function} {
     visibility: visible;
   }

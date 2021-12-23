@@ -1,11 +1,10 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import EditorComponent from "./components/EditorComponent";
 import { pagesFolder } from "../src/pagesData";
 import { RangeProvider } from "./selectionRange";
 import { v4 } from "uuid";
 import { MouseSelectionProvider } from "./mouseSelectionRect";
-import SideBar from "./components/SideBar";
 import { ResizedDistanceProvider } from "./resizedDistanceContext";
 
 export interface SelectionProps {
@@ -25,6 +24,7 @@ export interface NoteElement {
   listItems?: List[];
   listType?: string;
   img?: string | null;
+  width?: number;
   id: string;
 }
 export interface NotesFile {

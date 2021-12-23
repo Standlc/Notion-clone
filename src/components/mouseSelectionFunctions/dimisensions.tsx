@@ -1,7 +1,7 @@
 import { mouseSelector } from "../../mouseSelectionRect";
 
 export const handleSelectionDimensions = (
-  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  e: MouseEvent,
   enableSelection: boolean,
   mouseSelection: mouseSelector,
   selectionRectRef: React.MutableRefObject<HTMLDivElement | null>,

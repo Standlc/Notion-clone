@@ -16,6 +16,7 @@ import { SelectionRangeContext } from "../../selectionRange";
 import { hanldeMenuNavigation } from "./menuNavigation";
 import { handleInput } from "./handleInput";
 import {
+  ButtonsWrapper,
   Divider,
   HiddenInput,
   DividerWrapper,
@@ -206,7 +207,7 @@ const Element: React.FC<Props> = ({
   };
   const [imageWidth, setImageWidth] = useState<number | undefined>();
   useEffect(() => {
-    setImageWidth(imageRef.current?.getBoundingClientRect().width);
+    setImageWidth(imageRef.current?.getBoundingClientRect().width - 12);
   }, [resizedDistance.initialPos]);
   useLayoutEffect(() => {
     if (imageRef.current && imageWidth && elementIsSelected) {
@@ -224,21 +225,61 @@ const Element: React.FC<Props> = ({
           imageRef.current.style.width = `${
             imageWidth - resizedDistance.distance
           }px`;
+        note.width = imageRef.current.getBoundingClientRect().width - 12;
+        const currentNotesCopy = { ...currentNotes };
+        setCurrentNotes(currentNotesCopy);
       }
     }
   }, [resizedDistance]);
+  useLayoutEffect(() => {
+    if (resizedDistance.initialPos === 0 && imageRef.current && note.width) {
+      imageRef.current.style.width = note.width + "px";
+    }
+  }, []);
+
+  // const [imageRefWidth, setImageRefWidth] = useState(0);
+  // useEffect(() => {
+  //   setImageRefWidth(imageRef.current?.getBoundingClientRect().width);
+  // }, []);
+  // useLayoutEffect(() => {
+  //   if (imageRef.current && elementIsSelected) {
+  //     if (imageRefWidth - resizedDistance.distance < 300) {
+  //       imageRef.current.style.width = `300px`;
+  //     } else
+  //       imageRef.current.style.width = `${
+  //         imageRefWidth - resizedDistance.distance
+  //       }px`;
+  //     if (resizedDistance.initialPos === 0) {
+  //       const imageWidthAfterResizing =
+  //         imageRef.current.getBoundingClientRect().width;
+  //       setElementIsSelected(false);
+  //       note.width = imageWidthAfterResizing;
+  //       setImageRefWidth(imageWidthAfterResizing);
+  //       const currentNotesCopy = { ...currentNotes };
+  //       setCurrentNotes(currentNotesCopy);
+  //     }
+  //   }
+  // }, [resizedDistance]);
+  // useLayoutEffect(() => {
+  //   if (resizedDistance.initialPos === 0 && imageRef.current) {
+  //     imageRef.current.style.width = note.width + "px";
+  //   }
+  // }, []);
+
   return (
     <Wrapper
       onMouseDown={(e) => e.stopPropagation()}
       isMouseSelected={isMouseSelected}
       ref={wrapperRef}
     >
-      <Function onClick={removeBlock}>
-        <Remove fontSize="medium" />
-      </Function>
-      <Function style={{ cursor: "grab" }}>
-        <DragIndicator fontSize="medium" />
-      </Function>
+      <ButtonsWrapper>
+        <Function onClick={removeBlock}>
+          <Remove fontSize="medium" />
+        </Function>
+        <Function style={{ cursor: "grab" }}>
+          <DragIndicator fontSize="medium" />
+        </Function>
+      </ButtonsWrapper>
       {(note.type === "newNote" ||
         note.type === "paragraph" ||
         note.type === "title") && (
@@ -334,7 +375,6 @@ const Element: React.FC<Props> = ({
       )}
       {note.type === "image" && (
         <ImageInput
-          onClick={() => console.log(note)}
           ref={imageRef}
           elementIsSelected={elementIsSelected}
           htmlFor={note.id + 1}

@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useLayoutEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { NoteElement, NotesFile, SelectionProps } from "../App";
 import Element from "./TextInput.tsx/Element";
@@ -34,13 +34,14 @@ const Wrapper = styled.div`
   padding: 30px 50px 0px 50px;
 `;
 const Title = styled.input`
-  padding: 0 20px;
+  padding: 0px 7px;
   border-radius: 10px;
   color: white;
   font-size: 40px;
   font-weight: 600;
   border: none;
-  background-color: rgb(5, 10, 15);
+  /* background-color: rgb(5, 10, 15); */
+  background-color: transparent;
   width: calc(100% - 40px);
   resize: none;
   &:focus {
@@ -49,9 +50,10 @@ const Title = styled.input`
 `;
 const Divider = styled.div`
   height: 1px;
-  width: 100%;
+  width: calc(100% - 14px);
   background-color: rgba(255, 255, 255, 0.2);
-  margin: 20px 0px;
+  margin: 20px 7px;
+  /* padding: 0px 10px; */
 `;
 const SelectRect = styled.div`
   position: fixed;
@@ -118,23 +120,39 @@ const EditorComponent: React.FC<Props> = ({
       setSelectedBlocks
     );
   };
-
-  const selectionDimensions = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    handleSelectionDimensions(
-      e,
-      enableSelection,
-      mouseSelection,
-      selectionRectRef,
-      setMouseSelection
-    );
-    handleResizing(e, resizedDistance, setResizedDistance);
-  };
-  const stopSelecting = () => {
-    handleStopSelecting(selectionRectRef, setEnableSelection);
-    handleStopResizing(resizedDistance,setResizedDistance);
-  };
+  useLayoutEffect(() => {
+    const callFunctions = (e: MouseEvent) => {
+      handleSelectionDimensions(
+        e,
+        enableSelection,
+        mouseSelection,
+        selectionRectRef,
+        setMouseSelection
+      );
+      handleResizing(e, resizedDistance, setResizedDistance);
+    };
+    window.addEventListener("mousemove", callFunctions);
+    return () => window.removeEventListener("mousemove", callFunctions);
+  }, [
+    enableSelection,
+    mouseSelection,
+    setMouseSelection,
+    resizedDistance,
+    setResizedDistance,
+  ]);
+  useLayoutEffect(() => {
+    const callFunctions = () => {
+      handleStopSelecting(selectionRectRef, setEnableSelection);
+      handleStopResizing(resizedDistance, setResizedDistance);
+    };
+    window.addEventListener("mouseup", callFunctions);
+    return () => window.removeEventListener("mouseup", callFunctions);
+  }, [
+    selectionRectRef,
+    resizedDistance,
+    setEnableSelection,
+    setResizedDistance,
+  ]);
 
   const handleEditorClick = (e: any) => {
     setShowMenu(false);
@@ -171,12 +189,7 @@ const EditorComponent: React.FC<Props> = ({
   };
 
   return (
-    <Container
-      onMouseDown={initializingSelection}
-      onMouseMove={selectionDimensions}
-      onMouseUp={stopSelecting}
-      onClick={handleEditorClick}
-    >
+    <Container onMouseDown={initializingSelection} onClick={handleEditorClick}>
       {currentNotes && (
         <>
           <Wrapper ref={wrapperRef}>
