@@ -88,8 +88,7 @@ export const Divider = styled.div`
 `;
 export const Wrapper = styled.div<{ isMouseSelected: boolean }>`
   width: 100%;
-  /* margin: 2px 0; */
-  /* padding: 2px; */
+  margin: 2px 0;
   display: flex;
   border-radius: 5px;
   align-items: center;

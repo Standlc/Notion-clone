@@ -40,7 +40,6 @@ const Title = styled.input`
   font-size: 40px;
   font-weight: 600;
   border: none;
-  /* background-color: rgb(5, 10, 15); */
   background-color: transparent;
   width: calc(100% - 40px);
   resize: none;
