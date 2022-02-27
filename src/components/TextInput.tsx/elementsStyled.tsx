@@ -60,9 +60,9 @@ export const ListContainer = styled.div`
   flex-direction: column;
   border-radius: 5px;
   transition: background-color 100ms;
-  &:hover {
-    background-color: rgb(5, 10, 15);
-  }
+//   &:hover {
+//     background-color: rgb(5, 10, 15);
+//   }
 `;
 export const DividerWrapper = styled.div<{ elementIsSelected: boolean }>`
   display: flex;
