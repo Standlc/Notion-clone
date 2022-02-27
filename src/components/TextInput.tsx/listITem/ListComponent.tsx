@@ -41,9 +41,9 @@ const InputLine = styled.div`
   &:focus {
     outline: none;
   }
-  &:hover {
-    background-color: rgb(5, 10, 15);
-  }
+//   &:hover {
+//     background-color: rgb(5, 10, 15);
+//   }
 `;
 
 const ListComponent: React.FC<Props> = ({
